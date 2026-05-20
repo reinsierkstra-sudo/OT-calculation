@@ -21,15 +21,15 @@ logging.basicConfig(
 )
 log = logging.getLogger(__name__)
 
-# Windows Event XML uses double-quoted attributes, e.g.:
-#   <TimeCreated SystemTime="2024-01-15T08:30:00.123456789Z"/>
-#   <EventRecordID>12345</EventRecordID>
-#   <EventID>10000</EventID>
-_RE_SYSTEM_TIME  = re.compile(r'SystemTime="([^"]+)"')
+# Windows Event XML uses single-quoted attributes on this platform:
+#   <TimeCreated SystemTime='2024-01-15T08:30:00.123456789Z'/>
+#   <Data Name='Name'>nucmed.lan</Data>
+# Regexes accept both single and double quotes to be safe.
+_RE_SYSTEM_TIME  = re.compile(r"SystemTime=['\"]([^'\"]+)['\"]")
 _RE_RECORD_ID    = re.compile(r'<EventRecordID>(\d+)</EventRecordID>')
 _RE_EVENT_ID     = re.compile(r'<EventID(?:\s[^>]*)?>(\d+)</EventID>')
-# EventData fields: <Data Name="FieldName">value</Data>
-_RE_DATA_FIELD   = re.compile(r'<Data Name="([^"]+)">(.*?)</Data>', re.DOTALL)
+# EventData fields: <Data Name='FieldName'>value</Data>
+_RE_DATA_FIELD   = re.compile(r"<Data Name=['\"]([^'\"]+)['\"]>(.*?)</Data>", re.DOTALL)
 
 
 def _xml_system_time(xml: str, fallback: str) -> str:
@@ -219,16 +219,18 @@ def diagnose(conn) -> None:
     print(f"Looking for office SSID     : '{office_ssid}'")
     print()
 
-    for channel, xpath, label in [
+    for channel, xpath, label, name_field in [
         (
             "Microsoft-Windows-NetworkProfile/Operational",
             "*[System[(EventID=10000 or EventID=10001)]]",
             "NetworkProfile (connect/disconnect)",
+            "Name",
         ),
         (
             "Microsoft-Windows-WLAN-AutoConfig/Operational",
             "*[System[EventID=8002]]",
             "WLAN-AutoConfig (office WiFi)",
+            "SSID",
         ),
     ]:
         print(f"── {label}")
@@ -237,11 +239,14 @@ def diagnose(conn) -> None:
             handle = win32evtlog.EvtQuery(
                 channel, win32evtlog.EvtQueryReverseDirection, xpath
             )
-            batch = win32evtlog.EvtNext(handle, 5)
+            # Pull up to 50 events to collect all unique name/SSID values
+            batch = win32evtlog.EvtNext(handle, 50)
             if not batch:
                 print("   Result  : NO events found in this channel")
             else:
-                print(f"   Result  : {len(batch)} most-recent event(s) found")
+                print(f"   Result  : {len(batch)} event(s) scanned")
+
+                # Show parsed details of first 3
                 for evt in batch[:3]:
                     xml    = win32evtlog.EvtRender(evt, win32evtlog.EvtRenderEventXml)
                     rec_no = _xml_record_id(xml)
@@ -249,11 +254,25 @@ def diagnose(conn) -> None:
                     ts     = _xml_system_time(xml, "?")
                     fields = _xml_data_fields(xml)
                     print(f"     RecordID={rec_no}  EventID={ev_id}  Time={ts}")
-                    print(f"     Fields  : {dict(list(fields.items())[:6])}")
-                # Print raw XML of the first event so we can inspect the exact format
-                first_xml = win32evtlog.EvtRender(batch[0], win32evtlog.EvtRenderEventXml)
-                print(f"   Raw XML (first event, first 800 chars):")
-                print(f"   {repr(first_xml[:800])}")
+                    print(f"     Fields  : {dict(list(fields.items())[:8])}")
+
+                # Collect all unique values for the key name field
+                seen = set()
+                for evt in batch:
+                    xml    = win32evtlog.EvtRender(evt, win32evtlog.EvtRenderEventXml)
+                    fields = _xml_data_fields(xml)
+                    # Try multiple candidate field names
+                    for candidate in (name_field, "Name", "SSID", "ProfileName",
+                                      "InterfaceDescription", "Description"):
+                        val = fields.get(candidate, "")
+                        if val:
+                            seen.add(f"{candidate}='{val}'")
+                            break
+
+                print(f"   All unique name/SSID values found in these events:")
+                for v in sorted(seen):
+                    print(f"     {v}")
+
         except Exception as exc:
             print(f"   [ERROR] Cannot read channel: {exc}")
         print()
