@@ -1,0 +1,75 @@
+/* ==========================================================================
+   FORMS — complete form system for Flask app views
+   Requires: tokens.css loaded before this file (via dashboard.css)
+   ========================================================================== */
+
+/* ── Form layout ─────────────────────────────────────────────────────────── */
+
+.form-section {
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: var(--space-5);
+  margin-bottom: var(--space-5);
+}
+
+.form-section-title {
+  color: var(--color-brand-purple);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: var(--space-4);
+}
+
+/* Auto-fit two-column grid that collapses to one on narrow screens */
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-4) var(--space-5);
+}
+
+/* ── Individual field ────────────────────────────────────────────────────── */
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.form-label {
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}
+
+.form-label .required::after {
+  content: ' *';
+  color: var(--color-danger);
+}
+
+.form-control {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  font-size: var(--font-size-body);
+  color: var(--color-text-primary);
+  background: var(--color-bg-card);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: var(--color-text-heading-h2);
+  box-shadow: 0 0 0 3px rgba(56, 117, 186, 0.12);
+}
+
+.form-control:disabled {
+  background: var(--color-bg-page);
+  color: var(--color-disabled);
+  cursor: not-allowed;
+}
+
+.form-hint {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}

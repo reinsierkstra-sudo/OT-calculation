@@ -1,0 +1,44 @@
+/* ==========================================================================
+   PRINT — shared A4 / screen-hide rules for all dashboard reports
+   ========================================================================== */
+
+@media print {
+  /* Hide all interactive UI by default */
+  .navbar,
+  .toolbar,
+  .filter-bar,
+  .button-row,
+  .alarm-overlay-bar,
+  .modal-overlay,
+  .btn,
+  .heartbeat-row,
+  nav {
+    display: none !important;
+  }
+
+  body {
+    background: white;
+    padding: 0;
+    font-size: 12pt;
+    color: #000;
+  }
+
+  .container {
+    max-width: 100%;
+    box-shadow: none;
+    border-radius: 0;
+    padding: 0;
+  }
+
+  table {
+    page-break-inside: avoid;
+  }
+
+  thead {
+    display: table-header-group;
+  }
+
+  tr {
+    page-break-inside: avoid;
+  }
+}

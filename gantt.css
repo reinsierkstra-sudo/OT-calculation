@@ -1,0 +1,238 @@
+/* ==========================================================================
+   GANTT CHART
+   Requires: tokens.css loaded before this file (via dashboard.css)
+   ========================================================================== */
+
+.gantt-container {
+  background-color: var(--color-bg-card);
+  padding: var(--space-5);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-panel);
+  margin-bottom: var(--space-5);
+  position: relative;
+}
+
+/* ── Header bar ─────────────────────────────────────────────────────────── */
+
+.gantt-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: var(--space-4);
+  padding-bottom: var(--space-2);
+  border-bottom: 2px solid var(--color-border);
+}
+
+/* "Jump to now" button */
+.gantt-jump-now {
+  padding: var(--space-2) var(--space-5);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-bold);
+  cursor: pointer;
+  border: 2px solid var(--color-brand-pink);
+  background-color: var(--color-bg-card);
+  color: var(--color-brand-pink);
+  border-radius: var(--radius-md);
+  transition: background-color var(--transition-base),
+              color var(--transition-base);
+}
+
+.gantt-jump-now:hover {
+  background-color: var(--color-brand-pink);
+  color: var(--color-text-white);
+}
+
+.gantt-jump-now.hidden {
+  display: none;
+}
+
+/* ── Main layout ────────────────────────────────────────────────────────── */
+
+.gantt-main {
+  display: flex;
+  position: relative;
+}
+
+/* Row labels column (left side) */
+.gantt-labels {
+  width: var(--gantt-label-width);
+  flex-shrink: 0;
+  z-index: var(--z-gantt-labels);
+  background: var(--color-bg-card);
+}
+
+.gantt-label-item {
+  height: var(--gantt-row-height);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-brand-gradient);
+  color: var(--color-text-white);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-caption);
+  line-height: var(--line-height-tight);
+  border-bottom: 1px solid var(--color-border);
+  padding: 0 var(--space-2);
+}
+
+/* Scrollable chart wrapper */
+.gantt-wrapper {
+  overflow-x: auto;
+  overflow-y: hidden;
+  position: relative;
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-md);
+  flex-grow: 1;
+}
+
+.gantt-chart {
+  position: relative;
+  min-height: 250px;
+  background-color: var(--color-bg-gantt);
+}
+
+/* ── Sticky time header ─────────────────────────────────────────────────── */
+
+.gantt-time-header {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-gantt-header);
+  background-color: var(--color-bg-header);
+  border-bottom: 2px solid var(--color-border-strong);
+  display: flex;
+  height: var(--gantt-header-height);
+}
+
+.gantt-row-labels {
+  position: sticky;
+  left: 0;
+  z-index: var(--z-gantt-rows);
+  background-color: var(--color-bg-header);
+  flex-shrink: 0;
+}
+
+/* ── Time labels ────────────────────────────────────────────────────────── */
+
+.gantt-time-label {
+  position: absolute;
+  bottom: 0;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  white-space: nowrap;
+  padding: 2px var(--space-1);
+  transform: translateX(-50%);
+}
+
+.gantt-date-label {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-border-strong);
+  white-space: nowrap;
+}
+
+.gantt-hour-label {
+  font-size: var(--font-size-gantt-hour);
+  font-weight: var(--font-weight-normal);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+/* ── Timeline rows and grid ─────────────────────────────────────────────── */
+
+.gantt-timeline {
+  position: relative;
+}
+
+.gantt-row {
+  position: relative;
+  height: var(--gantt-row-height);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.gantt-grid-lines {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: var(--z-gantt-grid);
+}
+
+.gantt-grid-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background-color: var(--color-border-subtle);
+}
+
+/* ── Production blocks ──────────────────────────────────────────────────── */
+
+.gantt-block {
+  position: absolute;
+  top: var(--gantt-block-inset);
+  height: var(--gantt-block-height);
+  border: 2px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-gantt-block);
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform var(--transition-fast);
+  z-index: var(--z-gantt-block);
+}
+
+.gantt-block:hover {
+  transform: translateY(-3px);
+  z-index: var(--z-gantt-hover);
+  box-shadow: var(--shadow-block);
+}
+
+.gantt-block-label {
+  color: var(--color-text-primary);
+  text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
+  padding: 0 5px;
+}
+
+/* ── "Now" indicator ────────────────────────────────────────────────────── */
+
+.gantt-now-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background-color: var(--color-gantt-now);
+  z-index: var(--z-gantt-now);
+  pointer-events: none;
+}
+
+.gantt-now-label {
+  position: absolute;
+  top: -25px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--color-gantt-now);
+  color: var(--color-text-white);
+  padding: 3px var(--space-2);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  white-space: nowrap;
+}
+
+/* ── Tooltip ────────────────────────────────────────────────────────────── */
+
+.gantt-tooltip {
+  position: absolute;
+  display: none;
+  background-color: rgba(0, 0, 0, 0.9);
+  color: var(--color-text-white);
+  padding: var(--space-2);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-gantt-block);
+  z-index: var(--z-tooltip);
+  pointer-events: none;
+}

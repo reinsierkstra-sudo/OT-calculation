@@ -1,0 +1,204 @@
+/* ==========================================================================
+   DESIGN TOKENS
+   Single source of truth for all colours, typography, spacing, and radii.
+   All other files depend on this one — it must be loaded first.
+   ========================================================================== */
+
+:root {
+
+  /* ---------- Brand colours ---------- */
+  --color-brand-purple:      #662678;
+  --color-brand-pink:        #E40D7E;
+  --color-brand-gradient:    linear-gradient(135deg, #662678, #E40D7E);
+  --color-brand-gradient-lr: linear-gradient(to right, #662678, #E40D7E);
+
+  /* ---------- Semantic status colours ---------- */
+  --color-success:      #3BB143;   /* in-spec / OK */
+  --color-danger:       #FF2400;   /* out-of-spec / error */
+  --color-danger-dark:  #8B0000;   /* tampering banner border */
+  --color-warning:      #FFA500;   /* partial / borderline */
+  --color-gold:         #FFD700;   /* winner card detail text */
+  --color-disabled:     #aaaaaa;   /* no-data placeholder */
+
+  /* ---------- Heartbeat pill status ---------- */
+  --color-heartbeat-ok:      #38a169;
+  --color-heartbeat-aging:   #d69e2e;
+  --color-heartbeat-stale:   #e53e3e;
+
+  /* ---------- Accent borders (section headings) ---------- */
+  --color-accent-running:    #FF5722;  /* "Lopende week" h2 border */
+  --color-accent-previous:   #9C27B0;  /* "Afgelopen week" / storingen h2 border */
+
+  /* ---------- Isotope chart colours (Gantt) ---------- */
+  --color-isotope-thallium:  #FFDE21;
+  --color-isotope-gallium:   #0000ff;
+  --color-isotope-indium:    #00ffff;
+  --color-isotope-rubidium:  #FF0000;
+  --color-isotope-iodine:    #00FF00;
+  --color-isotope-pause:     #CCCCCC;
+
+  /* ---------- Gantt-specific colours ---------- */
+  --color-gantt-now:         #ff0000;  /* "now" line and label */
+
+  /* ---------- Neutral UI colours ---------- */
+  /*
+   * --color-bg-page and --color-bg-header are intentionally separate tokens
+   * even though they share #f5f5f5 today. Page background and the gantt sticky
+   * header are semantically different contexts and may diverge.
+   *
+   * --color-text-primary and --color-border-strong share #333333 for the same
+   * reason: dark text and strong borders happen to match now but are distinct
+   * semantic roles.
+   */
+  --color-bg-page:       #f5f5f5;
+  --color-bg-card:       #ffffff;
+  --color-bg-section:    #f9f9f9;
+  --color-bg-gantt:      #fafafa;
+  --color-bg-header:     #f5f5f5;   /* gantt sticky header */
+
+  --color-border:        #dddddd;
+  --color-border-subtle: #e0e0e0;   /* gantt grid lines */
+  --color-border-strong: #333333;
+
+  --color-text-primary:    #333333;
+  --color-text-heading-h2: #3875BA;
+  --color-text-heading-h3: #444444;
+  --color-text-muted:      #666666;
+  --color-text-link:       #662678;
+  --color-text-white:      #ffffff;
+
+  /* ---------- Extended brand colours ---------- */
+  --color-navy:         #283066;   /* Cycrevparts primary text / table headers */
+  --color-brand-cherry: #A51C70;   /* ingroei border (Productieplanning) */
+
+  /* ---------- Muted backgrounds ---------- */
+  --color-bg-muted:  #CFD9DE;   /* mink — border/divider (Rooster, Productieplanning) */
+  --color-bg-taupe:  #DBD9D6;   /* taupe — page/card body (Cycrevparts) */
+
+  /* ---------- Item-status colours (Cycrevparts physical parts) ---------- */
+  --color-status-in-bedrijf:    #2E7D32;
+  --color-status-gereviseerd:   #3875BA;   /* same as --color-text-heading-h2 */
+  --color-status-ongereviseerd: #E65100;
+  --color-status-in-revisie:    #662678;   /* same as --color-brand-purple */
+  --color-status-defect:        #C62828;   /* same as --color-danger (dark) */
+  --color-status-nieuw:         #00695C;
+  --color-status-mottenballen:  #78909C;
+  --color-status-onbekend:      #9E9E9E;
+  --color-status-afgevoerd:     #424242;
+
+  /* ---------- Shift row colours (Rooster) ---------- */
+  --color-shift-ochtend: #fffacd;   /* yellow — morning shift */
+  --color-shift-middag:  #f0f8ff;   /* light blue — afternoon shift */
+  --color-shift-nacht:   #f0fff0;   /* light green — night shift */
+
+  /* ---------- Row-state colours (Productieplanning) ---------- */
+  --color-row-active:  #fff9c4;   /* current production */
+  --color-row-warning: #ffeb3b;   /* ending soon */
+
+  /* ---------- Secondary table header ---------- */
+  --color-table-secondary: #5891d1;   /* lighter blue for maintenance tables */
+
+  /* ---------- System-ui font alternative ---------- */
+  --font-body-system: system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  /* ---------- Countdown display ---------- */
+  --font-size-countdown: 30px;
+
+  /* VSM-specific */
+  --color-vsm-header:   #1a5276;
+  --color-vsm-below:    #c0392b;
+  --color-vsm-above-bg: #d4efdf;
+  --color-vsm-info-bg:  #eaf4fc;
+
+  /* ---------- Typography ---------- */
+  --font-display: 'ISOCPEUR', 'Courier New', Courier, monospace;
+  --font-body:    'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  --font-ui:      Arial, sans-serif;
+
+  --font-weight-normal:   400;
+  --font-weight-semibold: 600;
+  --font-weight-bold:     700;
+
+  --font-size-h1:           3em;
+  --font-size-h2:           2em;
+  --font-size-h3:           1.17em;  /* matches browser <h3> default */
+  --font-size-pill:         20px;    /* heartbeat pill label */
+  --font-size-modal-header: 22px;    /* modal header h2 */
+  --font-size-label-lg:     25px;    /* KPI value inside table cells */
+  --font-size-label-md:     20px;    /* KPI percentage cells */
+  --font-size-label-sm:     18px;    /* leaderboard success-rate */
+  --font-size-bo:           15px;    /* BO number prefix */
+  --font-size-body:         16px;
+  --font-size-caption:      14px;
+  --font-size-meta:         13px;
+  --font-size-xs:           11px;    /* gantt time labels */
+  --font-size-gantt-block:  12px;    /* text inside gantt blocks */
+  --font-size-gantt-hour:   10px;    /* gantt hour sub-labels */
+
+  --letter-spacing-display: 0.05em;
+
+  --line-height-tight: 1;      /* single-line display text, icons */
+  --line-height-base:  1.5;    /* body copy */
+  --line-height-loose: 1.6;    /* footnotes, leaderboard legend */
+
+  /* ---------- Spacing scale ---------- */
+  /*
+   * Consistent 4-point scale. --space-4 is 16px (not 15px) to keep
+   * the pattern: 4 8 12 16 20 24 30 40 60.
+   */
+  --space-1:   4px;
+  --space-2:   8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-7:  30px;
+  --space-8:  40px;
+  --space-9:  60px;
+
+  /* ---------- Pill component ---------- */
+  --pill-padding-v:  6px;
+  --pill-padding-h: 21px;
+  --pill-gap:        9px;
+  --pill-dot-size:  20px;
+
+  /* ---------- Gantt chart dimensions ---------- */
+  --gantt-label-width:   120px;
+  --gantt-row-height:     70px;   /* full row including border */
+  --gantt-block-height:   60px;   /* row-height minus 2× block-inset */
+  --gantt-block-inset:     5px;   /* top offset of block inside row */
+  --gantt-header-height:  60px;   /* sticky time header */
+
+  /* ---------- Border-radius scale ---------- */
+  --radius-sm:     3px;
+  --radius-md:     5px;
+  --radius-lg:     8px;
+  --radius-xl:    10px;
+  --radius-pill:  30px;
+  --radius-circle: 50%;
+
+  /* ---------- Shadows ---------- */
+  --shadow-card:   0 2px 10px rgba(0, 0, 0, 0.1);
+  --shadow-panel:  0 2px  4px rgba(0, 0, 0, 0.1);
+  --shadow-modal:  0 4px 20px rgba(0, 0, 0, 0.3);
+  --shadow-btn:    0 4px  6px rgba(0, 0, 0, 0.2);
+  --shadow-block:  0 4px  8px rgba(0, 0, 0, 0.3);
+
+  /* ---------- Transitions ---------- */
+  --transition-fast: 0.2s ease;
+  --transition-base: 0.3s ease;
+
+  /* ---------- Z-index stack ---------- */
+  --z-gantt-grid:    1;    /* grid lines — below everything */
+  --z-gantt-block:  10;    /* production blocks */
+  --z-gantt-labels: 20;    /* row label column — above blocks */
+  --z-gantt-now:    40;    /* "now" line — above labels */
+  --z-gantt-header: 50;    /* sticky time header */
+  --z-gantt-rows:   60;    /* sticky row-label header cell */
+  --z-gantt-hover: 100;    /* hovered block */
+  --z-header-fixed:  100;    /* sticky/fixed page header */
+  --z-table-header:  10;     /* sticky th (vertical scroll) */
+  --z-alarm-bar:     20000;  /* alarm overlay — above modal */
+  --z-tooltip:       1000;
+  --z-modal:         10000;
+}

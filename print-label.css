@@ -1,0 +1,39 @@
+/* ==========================================================================
+   PRINT-LABEL — Brother thermal label (62mm × 50mm)
+   Import in qrlabel.html template only.
+   ========================================================================== */
+
+@page {
+  size: 62mm 50mm;
+  margin: 0;
+}
+
+@media print {
+  .label-screen-only { display: none !important; }
+
+  body {
+    margin: 0;
+    padding: 2mm;
+    font-family: var(--font-body);
+    font-size: 8pt;
+  }
+
+  .label-layout {
+    display: flex;
+    gap: 2mm;
+    width: 62mm;
+    height: 50mm;
+    align-items: flex-start;
+  }
+
+  .label-qr {
+    width: 28mm;
+    height: 28mm;
+    flex-shrink: 0;
+  }
+
+  .label-info {
+    flex: 1;
+    overflow: hidden;
+  }
+}

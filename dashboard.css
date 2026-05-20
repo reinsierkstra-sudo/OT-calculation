@@ -1,0 +1,19 @@
+/* ==========================================================================
+   DASHBOARD — unified entry point
+   Import this single file in your HTML <head>.
+
+   Load order is significant: tokens must come first so all custom
+   properties are defined before any rule that references them. The
+   individual partials do NOT self-import tokens; they rely on this file
+   to establish the cascade correctly.
+   ========================================================================== */
+
+@import url('tokens.css');
+@import url('base.css');
+@import url('layout.css');
+@import url('components.css');
+@import url('gantt.css');
+@import url('animations.css');
+@import url('forms.css');
+@import url('utilities.css');
+/* print.css, print-label.css, print-report.css are template-specific — import per page */

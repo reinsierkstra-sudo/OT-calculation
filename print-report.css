@@ -1,0 +1,46 @@
+/* ==========================================================================
+   PRINT-REPORT — A4 landscape report with CSS Paged Media headers/footers
+   Import in report/pdf.html templates only.
+   ========================================================================== */
+
+@page {
+  size: A4 landscape;
+  margin: 1.5cm 1.2cm;
+
+  @top-left   { content: string(report-title); font-size: 9pt; color: #555; }
+  @top-right  { content: string(report-date);  font-size: 9pt; color: #555; }
+  @bottom-center {
+    content: 'Pagina ' counter(page) ' van ' counter(pages);
+    font-size: 9pt;
+    color: #555;
+  }
+}
+
+@media print {
+  .report-title {
+    string-set: report-title content(text);
+  }
+
+  .report-date {
+    string-set: report-date content(text);
+  }
+
+  .report-screen-only { display: none !important; }
+
+  body {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 12pt;
+    color: #000;
+    background: white;
+  }
+
+  table {
+    page-break-inside: avoid;
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  tr { page-break-inside: avoid; }
+
+  thead { display: table-header-group; }
+}

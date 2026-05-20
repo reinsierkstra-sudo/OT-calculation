@@ -1,0 +1,32 @@
+/* ==========================================================================
+   ANIMATIONS
+   All keyframe animations used across the dashboard.
+   ========================================================================== */
+
+/* Pulse — tampering warning banner / urgent row */
+@keyframes pulse {
+  0%,
+  100% { opacity: 1; }
+  50%  { opacity: 0.7; }
+}
+
+/* Shadow-pulse — highlighted calendar cell */
+@keyframes highlight-pulse {
+  0%,
+  100% { box-shadow: inset 0 0 0 0 rgba(255, 165, 0, 0); }
+  50%  { box-shadow: inset 0 0 8px 4px rgba(255, 165, 0, 0.6); }
+}
+
+/* Glow pulse — alarming button */
+@keyframes button-glow {
+  0%,
+  100% { box-shadow: 0 0 0 0 rgba(255, 36, 0, 0); }
+  50%  { box-shadow: 0 0 12px 4px rgba(255, 36, 0, 0.5); }
+}
+
+/* Alarm pulse — fixed alarm overlay bar */
+@keyframes alarm-pulse {
+  0%,
+  100% { background: var(--color-danger); }
+  50%  { background: #cc0000; }
+}
