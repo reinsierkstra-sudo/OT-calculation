@@ -91,11 +91,7 @@ def _ot_flagged_fast(
     end_day     = local_end.date()
 
     while current_day <= end_day:
-        # Clip session to this calendar day (local)
-        day_start_local = tz.fromutc(
-            datetime.combine(current_day, datetime.min.time(), tzinfo=None).replace(tzinfo=timezone.utc)
-        )
-        # Build proper local midnight
+        # Build local midnight boundaries for this calendar day
         day_start_local = datetime(
             current_day.year, current_day.month, current_day.day, 0, 0, 0, tzinfo=tz
         )
