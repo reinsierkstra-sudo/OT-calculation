@@ -48,6 +48,15 @@ CREATE TABLE IF NOT EXISTS sessions (
 );
 CREATE INDEX IF NOT EXISTS idx_sessions_start ON sessions(start_ts);
 
+CREATE TABLE IF NOT EXISTS session_overrides (
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    start_ts     TEXT NOT NULL,
+    end_ts       TEXT,
+    action       TEXT NOT NULL CHECK (action IN ('delete','confirm')),
+    created_at   TEXT NOT NULL,
+    UNIQUE (start_ts, end_ts)
+);
+
 CREATE TABLE IF NOT EXISTS vacation_categories (
     id     INTEGER PRIMARY KEY AUTOINCREMENT,
     name   TEXT    NOT NULL UNIQUE,

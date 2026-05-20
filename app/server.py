@@ -225,8 +225,16 @@ def sessions():
 @app.route("/sessions/<int:id>/confirm", methods=["POST"])
 def session_confirm(id: int):
     conn = get_connection()
-    conn.execute("UPDATE sessions SET ot_flagged=0 WHERE id=?", (id,))
-    conn.commit()
+    row = conn.execute("SELECT start_ts, end_ts FROM sessions WHERE id=?", (id,)).fetchone()
+    if row:
+        now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.000Z")
+        conn.execute(
+            "INSERT OR REPLACE INTO session_overrides(start_ts, end_ts, action, created_at)"
+            " VALUES (?,?,?,?)",
+            (row["start_ts"], row["end_ts"], "confirm", now),
+        )
+        conn.execute("UPDATE sessions SET ot_flagged=0 WHERE id=?", (id,))
+        conn.commit()
     conn.close()
     flash("Session flag dismissed.", "success")
     return redirect(request.referrer or url_for("sessions"))
@@ -235,8 +243,16 @@ def session_confirm(id: int):
 @app.route("/sessions/<int:id>/delete", methods=["POST"])
 def session_delete(id: int):
     conn = get_connection()
-    conn.execute("DELETE FROM sessions WHERE id=?", (id,))
-    conn.commit()
+    row = conn.execute("SELECT start_ts, end_ts FROM sessions WHERE id=?", (id,)).fetchone()
+    if row:
+        now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.000Z")
+        conn.execute(
+            "INSERT OR REPLACE INTO session_overrides(start_ts, end_ts, action, created_at)"
+            " VALUES (?,?,?,?)",
+            (row["start_ts"], row["end_ts"], "delete", now),
+        )
+        conn.execute("DELETE FROM sessions WHERE id=?", (id,))
+        conn.commit()
     conn.close()
     flash("Session deleted.", "success")
     return redirect(request.referrer or url_for("sessions"))

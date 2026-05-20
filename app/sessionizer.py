@@ -227,6 +227,28 @@ def sessionize(conn) -> int:
         )
 
     conn.commit()
+
+    # ── Replay overrides ───────────────────────────────────────────────────
+    # Apply user corrections (confirm / delete) in the order they were made
+    # so they survive re-harvests and full sessionizer rebuilds.
+    overrides = conn.execute(
+        "SELECT start_ts, end_ts, action FROM session_overrides ORDER BY created_at ASC"
+    ).fetchall()
+
+    for ov in overrides:
+        if ov["action"] == "delete":
+            conn.execute(
+                "DELETE FROM sessions WHERE start_ts=? AND (end_ts IS ? OR end_ts=?)",
+                (ov["start_ts"], ov["end_ts"], ov["end_ts"]),
+            )
+        elif ov["action"] == "confirm":
+            conn.execute(
+                "UPDATE sessions SET ot_flagged=0"
+                " WHERE start_ts=? AND (end_ts IS ? OR end_ts=?)",
+                (ov["start_ts"], ov["end_ts"], ov["end_ts"]),
+            )
+
+    conn.commit()
     return len(stitched)
 
 
