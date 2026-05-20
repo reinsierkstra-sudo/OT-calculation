@@ -1,0 +1,23 @@
+[work]
+work_start                = "08:30"
+work_end                  = "17:00"
+break_minutes             = 30
+contract_hours_per_week   = 40
+work_days                 = ["Mon","Tue","Wed","Thu","Fri"]
+timezone                  = "Europe/Amsterdam"
+
+[harvester]
+network_profile_name      = "nucmed.lan"
+office_ssid               = "NucMed-Corp"
+stitch_gap_seconds        = 180
+
+[ot_flag]
+ot_flag_threshold_hours   = 4
+
+[holidays]
+country                   = "NL"
+seed_years_around_current = 2
+
+[server]
+host = "127.0.0.1"
+port = 5000

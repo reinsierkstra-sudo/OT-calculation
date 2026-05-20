@@ -1,0 +1,1921 @@
+/* ==========================================================================
+   DESIGN TOKENS
+   Single source of truth for all colours, typography, spacing, and radii.
+   All other files depend on this one — it must be loaded first.
+   ========================================================================== */
+
+:root {
+
+  /* ---------- Brand colours ---------- */
+  --color-brand-purple:      #662678;
+  --color-brand-pink:        #E40D7E;
+  --color-brand-gradient:    linear-gradient(135deg, #662678, #E40D7E);
+  --color-brand-gradient-lr: linear-gradient(to right, #662678, #E40D7E);
+
+  /* ---------- Semantic status colours ---------- */
+  --color-success:      #3BB143;   /* in-spec / OK */
+  --color-danger:       #FF2400;   /* out-of-spec / error */
+  --color-danger-dark:  #8B0000;   /* tampering banner border */
+  --color-warning:      #FFA500;   /* partial / borderline */
+  --color-gold:         #FFD700;   /* winner card detail text */
+  --color-disabled:     #aaaaaa;   /* no-data placeholder */
+
+  /* ---------- Heartbeat pill status ---------- */
+  --color-heartbeat-ok:      #38a169;
+  --color-heartbeat-aging:   #d69e2e;
+  --color-heartbeat-stale:   #e53e3e;
+
+  /* ---------- Accent borders (section headings) ---------- */
+  --color-accent-running:    #FF5722;  /* "Lopende week" h2 border */
+  --color-accent-previous:   #9C27B0;  /* "Afgelopen week" / storingen h2 border */
+
+  /* ---------- Isotope chart colours (Gantt) ---------- */
+  --color-isotope-thallium:  #FFDE21;
+  --color-isotope-gallium:   #0000ff;
+  --color-isotope-indium:    #00ffff;
+  --color-isotope-rubidium:  #FF0000;
+  --color-isotope-iodine:    #00FF00;
+  --color-isotope-pause:     #CCCCCC;
+
+  /* ---------- Gantt-specific colours ---------- */
+  --color-gantt-now:         #ff0000;  /* "now" line and label */
+
+  /* ---------- Neutral UI colours ---------- */
+  /*
+   * --color-bg-page and --color-bg-header are intentionally separate tokens
+   * even though they share #f5f5f5 today. Page background and the gantt sticky
+   * header are semantically different contexts and may diverge.
+   *
+   * --color-text-primary and --color-border-strong share #333333 for the same
+   * reason: dark text and strong borders happen to match now but are distinct
+   * semantic roles.
+   */
+  --color-bg-page:       #f5f5f5;
+  --color-bg-card:       #ffffff;
+  --color-bg-section:    #f9f9f9;
+  --color-bg-gantt:      #fafafa;
+  --color-bg-header:     #f5f5f5;   /* gantt sticky header */
+
+  --color-border:        #dddddd;
+  --color-border-subtle: #e0e0e0;   /* gantt grid lines */
+  --color-border-strong: #333333;
+
+  --color-text-primary:    #333333;
+  --color-text-heading-h2: #3875BA;
+  --color-text-heading-h3: #444444;
+  --color-text-muted:      #666666;
+  --color-text-link:       #662678;
+  --color-text-white:      #ffffff;
+
+  /* ---------- Extended brand colours ---------- */
+  --color-navy:         #283066;   /* Cycrevparts primary text / table headers */
+  --color-brand-cherry: #A51C70;   /* ingroei border (Productieplanning) */
+
+  /* ---------- Muted backgrounds ---------- */
+  --color-bg-muted:  #CFD9DE;   /* mink — border/divider (Rooster, Productieplanning) */
+  --color-bg-taupe:  #DBD9D6;   /* taupe — page/card body (Cycrevparts) */
+
+  /* ---------- Item-status colours (Cycrevparts physical parts) ---------- */
+  --color-status-in-bedrijf:    #2E7D32;
+  --color-status-gereviseerd:   #3875BA;   /* same as --color-text-heading-h2 */
+  --color-status-ongereviseerd: #E65100;
+  --color-status-in-revisie:    #662678;   /* same as --color-brand-purple */
+  --color-status-defect:        #C62828;   /* same as --color-danger (dark) */
+  --color-status-nieuw:         #00695C;
+  --color-status-mottenballen:  #78909C;
+  --color-status-onbekend:      #9E9E9E;
+  --color-status-afgevoerd:     #424242;
+
+  /* ---------- Shift row colours (Rooster) ---------- */
+  --color-shift-ochtend: #fffacd;   /* yellow — morning shift */
+  --color-shift-middag:  #f0f8ff;   /* light blue — afternoon shift */
+  --color-shift-nacht:   #f0fff0;   /* light green — night shift */
+
+  /* ---------- Row-state colours (Productieplanning) ---------- */
+  --color-row-active:  #fff9c4;   /* current production */
+  --color-row-warning: #ffeb3b;   /* ending soon */
+
+  /* ---------- Secondary table header ---------- */
+  --color-table-secondary: #5891d1;   /* lighter blue for maintenance tables */
+
+  /* ---------- System-ui font alternative ---------- */
+  --font-body-system: system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  /* ---------- Countdown display ---------- */
+  --font-size-countdown: 30px;
+
+  /* VSM-specific */
+  --color-vsm-header:   #1a5276;
+  --color-vsm-below:    #c0392b;
+  --color-vsm-above-bg: #d4efdf;
+  --color-vsm-info-bg:  #eaf4fc;
+
+  /* ---------- Typography ---------- */
+  --font-display: 'ISOCPEUR', 'Courier New', Courier, monospace;
+  --font-body:    'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  --font-ui:      Arial, sans-serif;
+
+  --font-weight-normal:   400;
+  --font-weight-semibold: 600;
+  --font-weight-bold:     700;
+
+  --font-size-h1:           3em;
+  --font-size-h2:           2em;
+  --font-size-h3:           1.17em;  /* matches browser <h3> default */
+  --font-size-pill:         20px;    /* heartbeat pill label */
+  --font-size-modal-header: 22px;    /* modal header h2 */
+  --font-size-label-lg:     25px;    /* KPI value inside table cells */
+  --font-size-label-md:     20px;    /* KPI percentage cells */
+  --font-size-label-sm:     18px;    /* leaderboard success-rate */
+  --font-size-bo:           15px;    /* BO number prefix */
+  --font-size-body:         16px;
+  --font-size-caption:      14px;
+  --font-size-meta:         13px;
+  --font-size-xs:           11px;    /* gantt time labels */
+  --font-size-gantt-block:  12px;    /* text inside gantt blocks */
+  --font-size-gantt-hour:   10px;    /* gantt hour sub-labels */
+
+  --letter-spacing-display: 0.05em;
+
+  --line-height-tight: 1;      /* single-line display text, icons */
+  --line-height-base:  1.5;    /* body copy */
+  --line-height-loose: 1.6;    /* footnotes, leaderboard legend */
+
+  /* ---------- Spacing scale ---------- */
+  /*
+   * Consistent 4-point scale. --space-4 is 16px (not 15px) to keep
+   * the pattern: 4 8 12 16 20 24 30 40 60.
+   */
+  --space-1:   4px;
+  --space-2:   8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-7:  30px;
+  --space-8:  40px;
+  --space-9:  60px;
+
+  /* ---------- Pill component ---------- */
+  --pill-padding-v:  6px;
+  --pill-padding-h: 21px;
+  --pill-gap:        9px;
+  --pill-dot-size:  20px;
+
+  /* ---------- Gantt chart dimensions ---------- */
+  --gantt-label-width:   120px;
+  --gantt-row-height:     70px;   /* full row including border */
+  --gantt-block-height:   60px;   /* row-height minus 2× block-inset */
+  --gantt-block-inset:     5px;   /* top offset of block inside row */
+  --gantt-header-height:  60px;   /* sticky time header */
+
+  /* ---------- Border-radius scale ---------- */
+  --radius-sm:     3px;
+  --radius-md:     5px;
+  --radius-lg:     8px;
+  --radius-xl:    10px;
+  --radius-pill:  30px;
+  --radius-circle: 50%;
+
+  /* ---------- Shadows ---------- */
+  --shadow-card:   0 2px 10px rgba(0, 0, 0, 0.1);
+  --shadow-panel:  0 2px  4px rgba(0, 0, 0, 0.1);
+  --shadow-modal:  0 4px 20px rgba(0, 0, 0, 0.3);
+  --shadow-btn:    0 4px  6px rgba(0, 0, 0, 0.2);
+  --shadow-block:  0 4px  8px rgba(0, 0, 0, 0.3);
+
+  /* ---------- Transitions ---------- */
+  --transition-fast: 0.2s ease;
+  --transition-base: 0.3s ease;
+
+  /* ---------- Z-index stack ---------- */
+  --z-gantt-grid:    1;    /* grid lines — below everything */
+  --z-gantt-block:  10;    /* production blocks */
+  --z-gantt-labels: 20;    /* row label column — above blocks */
+  --z-gantt-now:    40;    /* "now" line — above labels */
+  --z-gantt-header: 50;    /* sticky time header */
+  --z-gantt-rows:   60;    /* sticky row-label header cell */
+  --z-gantt-hover: 100;    /* hovered block */
+  --z-header-fixed:  100;    /* sticky/fixed page header */
+  --z-table-header:  10;     /* sticky th (vertical scroll) */
+  --z-alarm-bar:     20000;  /* alarm overlay — above modal */
+  --z-tooltip:       1000;
+  --z-modal:         10000;
+}
+/* ==========================================================================
+   BASE — reset, body, universal type scale
+   Requires: tokens.css loaded before this file (via dashboard.css)
+   ========================================================================== */
+
+/* ---------- Reset ---------- */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* ---------- Body ---------- */
+body {
+  font-family: var(--font-body);
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-base);
+  background: var(--color-bg-page);
+  padding: var(--space-5);
+  color: var(--color-text-primary);
+}
+
+/* ---------- Headings ---------- */
+h1 {
+  color: var(--color-text-primary);
+  font-family: var(--font-display);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: var(--letter-spacing-display);
+  font-size: var(--font-size-h1);
+  line-height: var(--line-height-tight);
+  margin-bottom: var(--space-2);
+}
+
+h2 {
+  color: var(--color-text-heading-h2);
+  font-family: var(--font-display);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: var(--letter-spacing-display);
+  font-size: var(--font-size-h2);
+  line-height: var(--line-height-tight);
+  border-bottom: 3px solid;
+  border-image: var(--color-brand-gradient-lr) 1;
+  padding-bottom: var(--space-2);
+  margin-bottom: var(--space-5);
+}
+
+/* Variant: orange accent (lopende week) */
+h2.accent--running {
+  border-image: none;
+  border-bottom-color: var(--color-accent-running);
+}
+
+/* Variant: purple accent (afgelopen week / storingen) */
+h2.accent--previous {
+  border-image: none;
+  border-bottom-color: var(--color-accent-previous);
+}
+
+/* Variant: no border (modals, winner card) */
+h2.accent--none {
+  border: none;
+  padding-bottom: 0;
+}
+
+h3 {
+  color: var(--color-text-heading-h3);
+  font-size: var(--font-size-h3);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-tight);
+  margin-bottom: var(--space-4);
+  border-bottom: 2px solid;
+  border-image: var(--color-brand-gradient-lr) 1;
+  padding-bottom: var(--space-2);
+}
+
+/* Large centred title inside a fixed header — Arial, text-shadow, flex gap */
+.page-heading--hero {
+  font-family: var(--font-ui);
+  font-size: 40px;
+  color: var(--color-brand-purple);
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+  text-align: center;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin: 0;
+  border: none;
+  padding: 0;
+  letter-spacing: normal;
+}
+
+/* ---------- Timestamp / meta text ---------- */
+.timestamp {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-caption);
+  margin-bottom: var(--space-2);
+}
+/* ==========================================================================
+   LAYOUT — container, header, sections, chart grids
+   Requires: tokens.css loaded before this file (via dashboard.css)
+   ========================================================================== */
+
+/* ---------- Page container ---------- */
+.container {
+  max-width: 95%;
+  margin: 0 auto;
+  background: var(--color-bg-card);
+  padding: var(--space-7);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-card);
+}
+
+/* ---------- Page header ---------- */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-7);
+}
+
+.header-left {
+  flex-grow: 1;
+}
+
+.header-right {
+  flex-shrink: 0;
+}
+
+.header-right img {
+  max-height: 160px;
+  max-width: 400px;
+}
+
+/* ---------- Generic section ---------- */
+.section {
+  margin-bottom: var(--space-8);
+}
+
+/* ---------- Isotope section (full isotope block with charts) ---------- */
+.isotope-section {
+  margin-bottom: var(--space-9);
+  padding: var(--space-5);
+  background: var(--color-bg-section);
+  border-radius: var(--radius-lg);
+}
+
+/* ---------- Chart grids ---------- */
+.chart-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-7);
+  margin-top: var(--space-5);
+}
+
+.chart-row-three {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: var(--space-5);
+  margin-top: var(--space-5);
+}
+
+/* ---------- Chart container ---------- */
+.chart-container {
+  position: relative;
+  height: 400px;
+  margin-top: var(--space-5);
+}
+
+/* ---------- Button row (modal launchers) ---------- */
+.button-row {
+  text-align: center;
+  margin-bottom: var(--space-7);
+  display: flex;
+  justify-content: center;
+  gap: var(--space-5);
+  flex-wrap: wrap;
+}
+
+/* ---------- Fixed / sticky page header ---------- */
+/* Use .header--fixed + body.has-fixed-header when the header must stay on screen */
+.header--fixed {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  min-height: 70px;
+  z-index: var(--z-header-fixed);
+  background: var(--color-bg-card);
+}
+
+body.has-fixed-header {
+  padding-top: 120px;
+}
+
+/* Left-side logo inside header (fixed width, no max constraints) */
+.header-logo {
+  width: 250px;
+  height: auto;
+  margin-right: var(--space-7);
+}
+
+/* ---------- Sticky top navbar (multi-page Flask apps) ---------- */
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-header-fixed);
+  height: 56px;
+  background: var(--color-brand-gradient);
+  display: flex;
+  align-items: center;
+  padding: 0 var(--space-7);
+  gap: var(--space-5);
+}
+
+.navbar-logo {
+  height: 32px;
+  width: auto;
+}
+
+.navbar-links {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  list-style: none;
+  flex: 1;
+}
+
+.navbar-links a {
+  color: var(--color-text-white);
+  text-decoration: none;
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-caption);
+  transition: background var(--transition-fast);
+}
+
+.navbar-links a:hover,
+.navbar-links a.is-active {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.navbar-search {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: var(--radius-md);
+  color: var(--color-text-white);
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--font-size-caption);
+}
+
+.navbar-search::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* ---------- Page header with title + subtitle + action area ---------- */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-7);
+}
+
+.page-header__titles {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.page-title {
+  color: var(--color-navy);
+  font-size: 1.4rem;
+  font-weight: var(--font-weight-bold);
+  margin: 0;
+}
+
+.page-subtitle {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+/* ---------- Three-column info dashboard (no charts) ---------- */
+.grid-row--3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: var(--space-5);
+  margin-top: var(--space-5);
+}
+
+/* ---------- Person-button group layout ---------- */
+.btn-group-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.btn-group-grid__col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.group-label {
+  font-weight: var(--font-weight-bold);
+  color: var(--color-brand-purple);
+  font-size: var(--font-size-meta);
+}
+
+/* ---------- Flex toolbar (filter buttons with gap control) ---------- */
+.toolbar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-5);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-7);
+}
+
+/* ---------- Filter bar (white bar + labelled filter groups) ---------- */
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-5);
+  background: var(--color-bg-card);
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-panel);
+  margin-bottom: var(--space-5);
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-size: var(--font-size-caption);
+}
+
+.filter-group label {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* ---------- Heartbeat pill row ---------- */
+.heartbeat-row {
+  text-align: center;
+  margin-bottom: var(--space-6);
+  display: flex;
+  justify-content: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  padding: var(--space-1) 0;
+}
+
+.heartbeat-label {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-meta);
+  text-align: center;
+  margin-bottom: var(--space-2);
+  margin-top: 0;
+}
+/* ==========================================================================
+   COMPONENTS — tables, buttons, pills, modals, links, KPI stats
+   Requires: tokens.css loaded before this file (via dashboard.css)
+   ========================================================================== */
+
+/* ── Tables ──────────────────────────────────────────────────────────────── */
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: var(--space-4);
+}
+
+thead {
+  background: var(--color-brand-gradient-lr);
+}
+
+th,
+td {
+  padding: var(--space-3);
+  text-align: left;
+  border-bottom: 1px solid var(--color-border);
+}
+
+th {
+  color: var(--color-text-white);
+  font-weight: var(--font-weight-semibold);
+  background: transparent;
+}
+
+tr:hover {
+  background-color: var(--color-bg-page);
+}
+
+/* KPI value inside a table cell — large coloured text */
+.cell-kpi-lg {
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-label-lg);
+}
+
+/* BO number prefix inside a table cell */
+.cell-bo {
+  color: var(--color-text-primary);
+  font-size: var(--font-size-bo);
+  font-weight: var(--font-weight-bold);
+}
+
+/* Clickable BO (with production history modal trigger) */
+.cell-bo--clickable {
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+/* OTIF missed-orders table */
+.otif-table-scroll {
+  overflow-x: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  margin-bottom: var(--space-7);
+}
+
+/* Sticky first column in OTIF / VSM tables */
+.col-sticky {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+}
+
+/* ── Buttons ─────────────────────────────────────────────────────────────── */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-4) var(--space-7);
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-bold);
+  font-family: var(--font-body);
+  border: 2px solid transparent;
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: transform var(--transition-fast),
+              box-shadow var(--transition-fast),
+              background var(--transition-base),
+              color var(--transition-base);
+}
+
+.btn--primary {
+  background: var(--color-brand-gradient);
+  color: var(--color-text-white);
+  box-shadow: var(--shadow-btn);
+}
+
+.btn--primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
+}
+
+.btn--outline {
+  background: var(--color-bg-card);
+  color: var(--color-brand-pink);
+  border-color: var(--color-brand-pink);
+}
+
+.btn--outline:hover {
+  background: var(--color-brand-pink);
+  color: var(--color-text-white);
+}
+
+/* Flat person button — small, blue, opacity hover (no gradient) */
+.btn--person {
+  background: #3875BA;
+  color: var(--color-text-white);
+  border-radius: 12px;
+  font-size: var(--font-size-meta);
+  padding: var(--space-1) var(--space-3);
+  border: none;
+}
+
+.btn--person:hover {
+  opacity: 0.85;
+}
+
+/* Nav button — small stacked gradient button for sub-page switching */
+.btn--nav {
+  background: var(--color-brand-gradient);
+  color: var(--color-text-white);
+  font-size: var(--font-size-xs);
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-3);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.btn--nav:hover {
+  transform: translateY(-1px);
+}
+
+.btn--nav--secondary {
+  background: #aaaaaa;
+  color: var(--color-text-white);
+}
+
+/* Toggle button — outlined, colour set via --btn-toggle-color */
+.btn--toggle {
+  background: transparent;
+  border: 2px solid var(--btn-toggle-color, var(--color-border-strong));
+  color: var(--btn-toggle-color, var(--color-text-primary));
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--font-size-meta);
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.btn--toggle.is-active {
+  background: var(--btn-toggle-color, var(--color-border-strong));
+  color: var(--color-text-white);
+}
+
+.btn--toggle--green  { --btn-toggle-color: #4CAF50; }
+.btn--toggle--orange { --btn-toggle-color: #ff9800; }
+.btn--toggle--blue   { --btn-toggle-color: #2196F3; }
+
+/* Alarming button — red glow animation */
+.btn.is-alarming {
+  border-color: var(--color-danger);
+  color: var(--color-danger);
+  animation: button-glow 1s ease-in-out infinite;
+}
+
+/* Size variants */
+.btn--sm {
+  padding: 0.3rem 0.7rem;
+  font-size: 0.8rem;
+}
+
+.btn--lg {
+  padding: 0.65rem 1.4rem;
+  font-size: 1rem;
+}
+
+/* Secondary and danger solid variants */
+.btn--secondary {
+  background: var(--color-navy);
+  color: var(--color-text-white);
+  border-color: var(--color-navy);
+}
+
+.btn--secondary:hover {
+  background: #1e2650;
+  border-color: #1e2650;
+}
+
+.btn--danger {
+  background: #C62828;
+  color: var(--color-text-white);
+  border-color: #C62828;
+}
+
+.btn--danger:hover {
+  background: #b71c1c;
+  border-color: #b71c1c;
+}
+
+/* ── Heartbeat pills ─────────────────────────────────────────────────────── */
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pill-gap);
+  background: var(--color-bg-page);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  padding: var(--pill-padding-v) var(--pill-padding-h);
+  font-size: var(--font-size-pill);
+  font-family: var(--font-ui);
+  cursor: default;
+  white-space: nowrap;
+}
+
+.pill__dot {
+  width: var(--pill-dot-size);
+  height: var(--pill-dot-size);
+  border-radius: var(--radius-circle);
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.pill__dot--ok     { background: var(--color-heartbeat-ok); }
+.pill__dot--aging  { background: var(--color-heartbeat-aging); }
+.pill__dot--stale  { background: var(--color-heartbeat-stale); }
+
+/* ── Modals ──────────────────────────────────────────────────────────────── */
+
+.modal-overlay {
+  display: none;
+  position: fixed;
+  z-index: var(--z-modal);
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+.modal-overlay.is-open {
+  display: block;
+  overflow: auto;
+}
+
+/* Full-screen variant (Dosis, Rooster, Productieschema) */
+.modal-overlay--fullscreen {
+  background-color: rgba(0, 0, 0, 0.9);
+}
+
+.modal-overlay--fullscreen.is-open {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.modal-panel {
+  position: relative;
+  background-color: var(--color-bg-card);
+  margin: 2% auto;
+  padding: 0;
+  width: 90%;
+  max-width: 1100px;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-modal);
+}
+
+.modal-header {
+  background: var(--color-brand-gradient);
+  color: var(--color-text-white);
+  padding: var(--space-5);
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/* Full-screen header (no border-radius) */
+.modal-header--bar {
+  border-radius: 0;
+  padding: var(--space-4) var(--space-6);
+}
+
+.modal-header h2 {
+  margin: 0;
+  color: var(--color-text-white);
+  border: none;
+  padding: 0;
+  font-size: var(--font-size-modal-header);
+  font-family: var(--font-body);
+  letter-spacing: normal;
+}
+
+.modal-close {
+  cursor: pointer;
+  font-size: 32px;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-white);
+  line-height: var(--line-height-tight);
+  border: none;
+  background: none;
+}
+
+.modal-close--lg {
+  font-size: 36px;
+}
+
+.modal-body {
+  padding: var(--space-5);
+  overflow-x: auto;
+}
+
+/* Full-screen body */
+.modal-body--fill {
+  flex: 1;
+  overflow: hidden;
+  background: var(--color-bg-card);
+  padding: 0;
+}
+
+/* Anchored close button — sits on white background, not gradient header */
+.modal-close--anchored {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  color: var(--color-brand-purple);
+}
+
+/* Gallery modal body — stacked images, scrollable */
+.modal-panel--gallery {
+  max-height: 90vh;
+  overflow: auto;
+}
+
+.modal-img-gap {
+  height: 12px;
+}
+
+/* ── Divider ─────────────────────────────────────────────────────────────── */
+
+.divider {
+  border: none;
+  border-top: 2px solid var(--color-brand-pink);
+  width: 90%;
+  margin: var(--space-5) auto;
+}
+
+.divider--brand {
+  border-top-color: var(--color-brand-pink);
+}
+
+/* ── KPI stat strip (below tables) ──────────────────────────────────────── */
+
+.kpi-strip {
+  text-align: center;
+  margin-top: var(--space-2);
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-base);
+}
+
+.kpi-strip__item {
+  font-weight: var(--font-weight-bold);
+}
+
+.kpi-strip__item + .kpi-strip__item {
+  margin-left: var(--space-5);
+}
+
+.kpi-strip__item--success { color: var(--color-success); }
+.kpi-strip__item--danger  { color: var(--color-danger); }
+.kpi-strip__item--neutral { color: var(--color-text-primary); }
+
+/* ── Legend component ────────────────────────────────────────────────────── */
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3) var(--space-5);
+  margin-bottom: var(--space-5);
+}
+
+.legend__item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--font-size-meta);
+}
+
+.legend__swatch {
+  display: inline-block;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* ── Countdown display ───────────────────────────────────────────────────── */
+
+.countdown-display {
+  text-align: center;
+  padding: var(--space-4) var(--space-5);
+}
+
+.countdown-display__value {
+  font-size: var(--font-size-countdown);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  display: block;
+}
+
+.countdown-display__label {
+  font-size: var(--font-size-caption);
+  color: var(--color-text-muted);
+}
+
+/* ── Isotope row border-left coding ─────────────────────────────────────── */
+
+.row--isotope-thallium  { border-left: 10px solid var(--color-isotope-thallium); }
+.row--isotope-gallium   { border-left: 10px solid var(--color-isotope-gallium); }
+.row--isotope-indium    { border-left: 10px solid var(--color-isotope-indium); }
+.row--isotope-rubidium  { border-left: 10px solid var(--color-isotope-rubidium); }
+.row--isotope-iodine    { border-left: 10px solid var(--color-isotope-iodine); }
+
+/* ── Production row status classes ──────────────────────────────────────── */
+
+.row--active  { background: var(--color-row-active); }
+.row--warning { background: var(--color-row-warning); }
+
+.row--urgent {
+  background: #ff5252;
+  color: var(--color-text-white);
+  animation: pulse 1s ease-in-out infinite;
+}
+
+.row--done {
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+
+.row--pause { font-style: italic; }
+.row--info  { font-style: italic; color: var(--color-text-muted); }
+
+/* ── Plating tile grid ───────────────────────────────────────────────────── */
+
+.tile-container {
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+}
+
+.tile-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-2);
+}
+
+.tile {
+  background: var(--color-bg-card);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  text-align: center;
+}
+
+.tile--critical { background: #ffebee; color: #c62828; }
+.tile--warning  { background: #fff3e0; color: #ef6c00; }
+
+/* ── Alert banner ────────────────────────────────────────────────────────── */
+
+.alert-banner {
+  padding: var(--space-4) var(--space-5);
+  border-radius: 12px;
+  margin-bottom: var(--space-5);
+}
+
+.alert-banner--warning {
+  background: #fff3cd;
+  border-left: 6px solid #ffc107;
+  color: #856404;
+}
+
+.alert-banner--danger {
+  background: #fde8e8;
+  border-left: 6px solid var(--color-danger);
+  color: var(--color-danger);
+}
+
+/* ── Status bar (last-update timestamp) ─────────────────────────────────── */
+
+.status-bar {
+  text-align: center;
+  font-size: var(--font-size-caption);
+  color: var(--color-text-muted);
+  background: var(--color-bg-card);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-panel);
+  margin-bottom: var(--space-4);
+}
+
+/* ── Sticky table column header (vertical scroll) ────────────────────────── */
+
+.col-sticky-top {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-table-header);
+}
+
+/* ── Shift row colour-coding ─────────────────────────────────────────────── */
+
+.row--shift-ochtend { background: var(--color-shift-ochtend); }
+.row--shift-middag  { background: var(--color-shift-middag); }
+.row--shift-nacht   { background: var(--color-shift-nacht); }
+
+/* ── Day section header (full-width branded separator) ───────────────────── */
+
+.section-header--day {
+  background: var(--color-brand-gradient);
+  color: var(--color-text-white);
+  font-size: 18px;
+  font-weight: var(--font-weight-bold);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-5);
+  margin: var(--space-4) 0;
+}
+
+/* ── Secondary table (maintenance — lighter blue header) ─────────────────── */
+
+.table--secondary thead,
+.table--secondary th {
+  background: var(--color-table-secondary);
+}
+
+/* ── Bold plum number in a table cell ────────────────────────────────────── */
+
+.cell-value--plum {
+  font-weight: var(--font-weight-bold);
+  color: var(--color-brand-purple);
+}
+
+/* ── Stock alert cell states ─────────────────────────────────────────────── */
+
+.cell--critical {
+  background: #ffebee;
+  color: #c62828;
+}
+
+.cell--warning {
+  background: #fff3e0;
+  color: #ef6c00;
+}
+
+/* ── Calendar / week table ───────────────────────────────────────────────── */
+
+.table--calendar {
+  border-collapse: collapse;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  table-layout: fixed;
+}
+
+/* Fixed service-name column (200px) */
+.table__dienst-col {
+  width: 200px;
+}
+
+/* Day-column headers sweep purple→pink across all 7 columns (nth-child) */
+.table--week-gradient th:nth-child(2)  { background: linear-gradient(135deg, #662678, #7a2a88); }
+.table--week-gradient th:nth-child(3)  { background: linear-gradient(135deg, #7a2a88, #8e2e98); }
+.table--week-gradient th:nth-child(4)  { background: linear-gradient(135deg, #8e2e98, #a232a8); }
+.table--week-gradient th:nth-child(5)  { background: linear-gradient(135deg, #a232a8, #b836b8); }
+.table--week-gradient th:nth-child(6)  { background: linear-gradient(135deg, #b836b8, #cc3ac8); }
+.table--week-gradient th:nth-child(7)  { background: linear-gradient(135deg, #cc3ac8, #e03ed8); }
+.table--week-gradient th:nth-child(8)  { background: linear-gradient(135deg, #e03ed8, #E40D7E); }
+
+/* Day-state row/cell classes */
+.current-day {
+  background: linear-gradient(135deg, #3875BA, #4CC9F0);
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.15);
+  color: var(--color-text-white);
+}
+
+.past-day {
+  background: #f0f0f0;
+  color: var(--color-disabled);
+}
+
+.weekend {
+  background: #fafafa;
+}
+
+.current-week {
+  box-shadow: 0 0 0 8px #3875BA;
+}
+
+/* Highlighted cell — gold with pulse shadow animation */
+.table__cell--highlight {
+  background: linear-gradient(135deg, var(--color-gold), var(--color-warning));
+  animation: highlight-pulse 1.5s ease-in-out infinite;
+}
+
+/* ── Page panels (client-side tab switching) ────────────────────────────── */
+
+.page-panel {
+  display: none;
+}
+
+.page-panel.is-visible {
+  display: block;
+}
+
+/* ── Chips ───────────────────────────────────────────────────────────────── */
+
+/* Toggle chip — show/hide rows, active = success green */
+.chip {
+  display: inline-block;
+  border-radius: 12px;
+  font-size: 10px;
+  padding: var(--space-1) var(--space-2);
+  background: #e0e0e0;
+  color: var(--color-text-primary);
+  cursor: pointer;
+  border: none;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.chip.is-active {
+  background: var(--color-success);
+  color: var(--color-text-white);
+}
+
+/* Selectable person-name chip */
+.chip--selectable {
+  background: #f0f0f0;
+}
+
+.chip--selectable.is-selected {
+  background: var(--color-brand-purple);
+  color: var(--color-text-white);
+  border: 1px solid var(--color-brand-pink);
+}
+
+/* ── Links (ploeg detail / storingen) ───────────────────────────────────── */
+
+.link--ploeg {
+  color: var(--color-text-link);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.link--ploeg:hover {
+  text-decoration: underline;
+}
+
+.link--storing {
+  color: var(--color-text-link);
+  text-decoration: underline;
+  font-weight: var(--font-weight-bold);
+  cursor: pointer;
+}
+
+/* ── Alarm overlay bar ───────────────────────────────────────────────────── */
+
+.alarm-overlay-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: var(--z-alarm-bar);
+  background: var(--color-danger);
+  color: var(--color-text-white);
+  padding: var(--space-3) var(--space-5);
+  display: none;
+  justify-content: space-between;
+  align-items: center;
+  animation: alarm-pulse 1s ease-in-out infinite;
+}
+
+.alarm-overlay-bar.is-active {
+  display: flex;
+}
+
+/* ── Changelog entry (left-border type coding) ───────────────────────────── */
+
+.changelog-entry {
+  padding: var(--space-2) var(--space-4);
+  margin-bottom: var(--space-2);
+  border-left: 4px solid var(--color-border);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+
+.changelog-entry--new      { border-left-color: var(--color-success); }
+.changelog-entry--modified { border-left-color: var(--color-warning); }
+.changelog-entry--deleted  { border-left-color: var(--color-danger); }
+.changelog-entry--running  { border-left-color: #ff5722; }
+
+/* ── Card (canonical — replaces .top-box, .table-container) ─────────────── */
+
+.card {
+  background: var(--color-bg-card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+}
+
+.card-header {
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 2px solid var(--color-bg-muted);
+}
+
+.card-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-navy);
+}
+
+/* Coloured-border card variants */
+.card--border-purple { border-left: 4px solid var(--color-brand-purple); }
+.card--border-blue   { border-left: 4px solid var(--color-text-heading-h2); }
+.card--border-cherry { border-left: 4px solid var(--color-brand-cherry); }
+
+.card--bg-muted { background: var(--color-bg-muted); }
+
+/* ── Tampering warning banner ────────────────────────────────────────────── */
+
+.tampering-banner {
+  background: var(--color-danger);
+  color: var(--color-text-white);
+  padding: var(--space-5);
+  margin-bottom: var(--space-7);
+  border-radius: var(--radius-xl);
+  text-align: center;
+  font-size: var(--font-size-label-sm);
+  font-weight: var(--font-weight-bold);
+  border: 5px solid var(--color-danger-dark);
+  animation: pulse 2s infinite;
+}
+
+.tampering-banner__icon {
+  font-size: 48px;
+  line-height: var(--line-height-tight);
+  margin-bottom: var(--space-2);
+}
+
+/* ── Section subtitle (grey helper text below h2) ────────────────────────── */
+
+.section-subtitle {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-meta);
+  margin-top: calc(-1 * var(--space-2));
+  margin-bottom: var(--space-2);
+}
+
+/* ── Ploeg monthly winner card ──────────────────────────────────────────── */
+
+.winner-card {
+  text-align: center;
+  background: var(--color-brand-gradient);
+  padding: var(--space-7);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-panel);
+}
+
+.winner-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-7);
+  margin-bottom: var(--space-5);
+}
+
+.winner-card__title {
+  font-size: 42px;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-white);
+  line-height: var(--line-height-tight);
+  margin: 0;
+  border: none;
+  padding: 0;
+}
+
+.winner-card__trophy {
+  font-size: 84px;
+  line-height: var(--line-height-tight);
+}
+
+.winner-card__name {
+  font-size: 32px;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-white);
+  margin: var(--space-5) 0;
+}
+
+.winner-card__rate {
+  font-size: 24px;
+  color: var(--color-text-white);
+  margin: var(--space-2) 0;
+}
+
+.winner-card__detail {
+  font-size: var(--font-size-label-sm);
+  color: var(--color-gold);
+  margin: var(--space-1) 0;
+}
+
+/* ── Data table (app-style, navy header + sort indicators) ──────────────── */
+
+.table--data thead {
+  background: var(--color-navy);
+}
+
+.table--data th[data-sort]::after {
+  content: ' \25B2';
+  font-size: 10px;
+  opacity: 0.5;
+}
+
+.table--data th[data-sort="desc"]::after {
+  content: ' \25BC';
+  opacity: 1;
+}
+
+.table--data tr:nth-child(even) {
+  background: #fafafa;
+}
+
+.table--data tr:hover {
+  background: #eef3fb;
+  cursor: pointer;
+}
+
+/* ── Badge system ────────────────────────────────────────────────────────── */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.6rem;
+  border-radius: 20px;
+  font-size: 0.76rem;
+  font-weight: var(--font-weight-semibold);
+  white-space: nowrap;
+}
+
+/* Item-status variants */
+.badge--in-bedrijf    { background: var(--color-status-in-bedrijf);    color: #fff; }
+.badge--gereviseerd   { background: var(--color-status-gereviseerd);   color: #fff; }
+.badge--ongereviseerd { background: var(--color-status-ongereviseerd); color: #fff; }
+.badge--in-revisie    { background: var(--color-status-in-revisie);    color: #fff; }
+.badge--defect        { background: var(--color-status-defect);        color: #fff; }
+.badge--nieuw         { background: var(--color-status-nieuw);         color: #fff; }
+.badge--mottenballen  { background: var(--color-status-mottenballen);  color: #fff; }
+.badge--onbekend      { background: var(--color-status-onbekend);      color: #fff; }
+.badge--afgevoerd     { background: var(--color-status-afgevoerd);     color: #fff; }
+
+/* Alert-level variants */
+.badge--ok      { background: var(--color-success); color: #fff; }
+.badge--laag    { background: var(--color-warning);  color: #fff; }
+.badge--kritiek { background: var(--color-danger);   color: #fff; }
+.badge--info    { background: var(--color-text-heading-h2); color: #fff; }
+.badge--warning { background: var(--color-warning);  color: #fff; }
+.badge--archief { background: var(--color-disabled); color: #fff; }
+
+/* ── Alert block system ──────────────────────────────────────────────────── */
+/* Also canonical for flash messages (.flash-success → .alert.alert--ok, etc.) */
+
+.alert {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem;
+  border-radius: var(--radius-md);
+  border-left: 4px solid var(--color-border);
+  margin-bottom: var(--space-4);
+}
+
+.alert-icon {
+  flex-shrink: 0;
+  font-size: 1.2rem;
+}
+
+.alert--ok,
+.alert--success { border-left-color: var(--color-success); background: #f0fdf4; }
+.alert--warning { border-left-color: var(--color-warning); background: #fff7ed; }
+.alert--danger,
+.alert--kritiek { border-left-color: var(--color-danger);  background: #fef2f2; }
+.alert--info    { border-left-color: var(--color-text-heading-h2); background: var(--color-vsm-info-bg); }
+
+/* ── Dashboard stat-card grid ────────────────────────────────────────────── */
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--space-5);
+  margin-bottom: var(--space-7);
+}
+
+.stat-card {
+  background: var(--color-bg-card);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  box-shadow: var(--shadow-panel);
+  border-top: 3px solid var(--color-border);
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  line-height: var(--line-height-tight);
+}
+
+.stat-label {
+  font-size: var(--font-size-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+  margin-top: var(--space-1);
+}
+
+/* ── Timeline ────────────────────────────────────────────────────────────── */
+
+.timeline {
+  padding-left: 1.5rem;
+  border-left: 2px solid var(--color-bg-muted);
+  margin-bottom: var(--space-7);
+}
+
+.timeline-item {
+  position: relative;
+  margin-bottom: var(--space-5);
+}
+
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: -1.85rem;
+  top: 0.25rem;
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-circle);
+  background: var(--color-text-heading-h2);
+}
+
+.timeline-date {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-semibold);
+}
+
+.timeline-actie {
+  font-weight: var(--font-weight-semibold);
+  margin: var(--space-1) 0;
+}
+
+.timeline-detail {
+  font-size: var(--font-size-caption);
+  color: var(--color-text-muted);
+}
+
+/* ── Pagination ──────────────────────────────────────────────────────────── */
+
+.pagination {
+  display: flex;
+  gap: 0.3rem;
+  justify-content: flex-end;
+  list-style: none;
+  margin-top: var(--space-4);
+}
+
+.pagination a,
+.pagination span {
+  display: inline-block;
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-primary);
+  text-decoration: none;
+  font-size: var(--font-size-caption);
+  transition: background var(--transition-fast);
+}
+
+.pagination a:hover {
+  background: var(--color-bg-page);
+}
+
+.pagination .is-active a,
+.pagination .is-active span {
+  background: var(--color-navy);
+  color: var(--color-text-white);
+  border-color: var(--color-navy);
+}
+
+/* ── Wizard steps (canonical step indicator) ─────────────────────────────── */
+
+.wizard-steps {
+  display: flex;
+  align-items: center;
+  margin-bottom: var(--space-7);
+}
+
+.wizard-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.wizard-step-nr {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-circle);
+  background: var(--color-border);
+  color: var(--color-text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-meta);
+}
+
+.wizard-step.is-active .wizard-step-nr {
+  background: var(--color-brand-gradient);
+  color: var(--color-text-white);
+}
+
+.wizard-step.is-done .wizard-step-nr {
+  background: var(--color-success);
+  color: var(--color-text-white);
+}
+
+.wizard-step-label {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.wizard-connector {
+  flex: 1;
+  height: 2px;
+  background: var(--color-border);
+  margin: 0 var(--space-2);
+  align-self: center;
+  margin-bottom: var(--space-5); /* offset for label below */
+}
+
+/* Simple flat step bar (simpler alternative — use wizard-steps for new work) */
+.steps {
+  display: flex;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  margin-bottom: var(--space-7);
+}
+
+.step {
+  flex: 1;
+  text-align: center;
+  padding: var(--space-3);
+  background: var(--color-bg-page);
+  font-size: var(--font-size-caption);
+  border-right: 1px solid var(--color-border);
+}
+
+.step:last-child { border-right: none; }
+.step.is-active  { background: var(--color-navy); color: var(--color-text-white); }
+.step.is-done    { background: var(--color-success); color: var(--color-text-white); }
+
+/* ── Collapsible details/summary ─────────────────────────────────────────── */
+
+details.collapsible > summary {
+  background: var(--color-bg-taupe);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  list-style: none;
+  position: relative;
+  padding-right: var(--space-8);
+}
+
+details.collapsible > summary::after {
+  content: '\25B6';
+  position: absolute;
+  right: var(--space-4);
+  transition: transform var(--transition-fast);
+}
+
+details.collapsible[open] > summary::after {
+  transform: rotate(90deg);
+}
+
+/* ── Archived row / label ─────────────────────────────────────────────────── */
+
+.row--archived td { opacity: 0.55; }
+
+.tag--archived {
+  font-style: italic;
+  background: #eeeeee;
+  border-radius: 10px;
+  padding: 1px var(--space-2);
+  font-size: var(--font-size-xs);
+}
+
+/* ── Select dropdown (reden voor afwijking) ─────────────────────────────── */
+
+.reason-select {
+  width: 100%;
+  padding: var(--space-1);
+}
+
+/* ── VSM table cells ─────────────────────────────────────────────────────── */
+
+.vsm-cell {
+  padding: 7px var(--space-3);
+  text-align: center;
+}
+
+.vsm-cell--below {
+  background: var(--color-vsm-below);
+  color: var(--color-text-white);
+  font-weight: var(--font-weight-bold);
+}
+
+.vsm-cell--empty {
+  color: var(--color-disabled);
+}
+
+.vsm-otif--ok {
+  background: var(--color-vsm-above-bg);
+  font-weight: var(--font-weight-bold);
+}
+
+.vsm-otif--fail {
+  background: var(--color-vsm-below);
+  color: var(--color-text-white);
+  font-weight: var(--font-weight-bold);
+}
+/* ==========================================================================
+   FORMS — complete form system for Flask app views
+   Requires: tokens.css loaded before this file (via dashboard.css)
+   ========================================================================== */
+
+/* ── Form layout ─────────────────────────────────────────────────────────── */
+
+.form-section {
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: var(--space-5);
+  margin-bottom: var(--space-5);
+}
+
+.form-section-title {
+  color: var(--color-brand-purple);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: var(--space-4);
+}
+
+/* Auto-fit two-column grid that collapses to one on narrow screens */
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-4) var(--space-5);
+}
+
+/* ── Individual field ────────────────────────────────────────────────────── */
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.form-label {
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}
+
+.form-label .required::after {
+  content: ' *';
+  color: var(--color-danger);
+}
+
+.form-control {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  font-size: var(--font-size-body);
+  color: var(--color-text-primary);
+  background: var(--color-bg-card);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: var(--color-text-heading-h2);
+  box-shadow: 0 0 0 3px rgba(56, 117, 186, 0.12);
+}
+
+.form-control:disabled {
+  background: var(--color-bg-page);
+  color: var(--color-disabled);
+  cursor: not-allowed;
+}
+
+.form-hint {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+/* ==========================================================================
+   UTILITIES — single-purpose helper classes
+   Imported last in dashboard.css so they can override component styles.
+   ========================================================================== */
+
+/* ── Text colour ─────────────────────────────────────────────────────────── */
+.text-muted   { color: var(--color-text-muted); }
+.text-danger  { color: var(--color-danger); }
+.text-success { color: var(--color-success); }
+.text-plum    { color: var(--color-brand-purple); }
+.text-navy    { color: var(--color-navy); }
+
+/* ── Font weight ─────────────────────────────────────────────────────────── */
+.fw-bold { font-weight: var(--font-weight-bold); }
+
+/* ── Spacing ─────────────────────────────────────────────────────────────── */
+.mt-1 { margin-top: var(--space-2); }
+.mt-2 { margin-top: var(--space-4); }
+.mt-3 { margin-top: var(--space-7); }
+.mb-1 { margin-bottom: var(--space-2); }
+.mb-2 { margin-bottom: var(--space-4); }
+
+/* ── Flex helpers ────────────────────────────────────────────────────────── */
+.d-flex         { display: flex; }
+.gap-1          { gap: var(--space-2); }
+.gap-2          { gap: var(--space-4); }
+.align-center   { align-items: center; }
+.justify-between { justify-content: space-between; }
+.flex-wrap      { flex-wrap: wrap; }
+
+/* ── Alpine.js flash prevention ──────────────────────────────────────────── */
+[x-cloak] { display: none !important; }
+
+/* ==========================================================================
+   LAPTOPHOURS — application-specific overrides
+   ========================================================================== */
+
+/* ── Navbar active link ───────────────────────────────────────────────────── */
+.navbar-links a.is-active {
+  background: rgba(255,255,255,0.25);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* ── OT balance card accent ──────────────────────────────────────────────── */
+.stat-card--ot    { border-top-color: var(--color-brand-purple); }
+.stat-card--vac   { border-top-color: var(--color-success); }
+.stat-card--delta { border-top-color: var(--color-warning); }
+.stat-card--week  { border-top-color: var(--color-text-heading-h2); }
+
+/* Positive / negative delta colour */
+.delta--pos { color: var(--color-success); }
+.delta--neg { color: var(--color-danger); }
+
+/* ── Flagged session row ─────────────────────────────────────────────────── */
+.row--flagged {
+  background: #fff3e0;
+}
+.row--flagged td:first-child {
+  border-left: 4px solid var(--color-warning);
+}
+
+/* ── Sessions table footer totals ────────────────────────────────────────── */
+tfoot td {
+  font-weight: var(--font-weight-bold);
+  background: var(--color-bg-section);
+  border-top: 2px solid var(--color-border);
+}
+
+/* ── Chart canvas wrapper ────────────────────────────────────────────────── */
+.chart-wrap {
+  position: relative;
+  height: 300px;
+}
+
+/* ── Date-range quick filter bar ─────────────────────────────────────────── */
+.quick-filters {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-5);
+}
+
+.quick-filters a {
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  font-size: var(--font-size-caption);
+  text-decoration: none;
+  color: var(--color-text-primary);
+  transition: background var(--transition-fast);
+}
+
+.quick-filters a:hover,
+.quick-filters a.is-active {
+  background: var(--color-brand-gradient);
+  color: var(--color-text-white);
+  border-color: transparent;
+}
+
+/* ── Session kind badge ──────────────────────────────────────────────────── */
+.kind--office   { color: var(--color-text-heading-h2); font-weight: var(--font-weight-semibold); }
+.kind--home_vpn { color: var(--color-text-muted); }
+.kind--unknown  { color: var(--color-disabled); }
+
+/* ── Open session live indicator ─────────────────────────────────────────── */
+.open-session-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: var(--radius-circle);
+  background: var(--color-success);
+  animation: pulse 2s infinite;
+  margin-right: var(--space-1);
+}
+
+/* ── Settings page sections ──────────────────────────────────────────────── */
+.settings-section {
+  margin-bottom: var(--space-8);
+}
+
+/* ── Aggregates weekly rollup table ─────────────────────────────────────── */
+.table--aggregates th { white-space: nowrap; }
+.table--aggregates td { text-align: right; }
+.table--aggregates td:first-child { text-align: left; }
+
+/* ── Page main wrapper ──────────────────────────────────────────────────── */
+.page-main {
+  max-width: 1200px;
+  margin: var(--space-7) auto;
+  padding: 0 var(--space-5);
+}
+
+/* ── Action button row (sessions table) ──────────────────────────────────── */
+.action-btns {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: nowrap;
+}
+

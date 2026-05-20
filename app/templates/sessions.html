@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block title %}Sessions — LaptopHours{% endblock %}
+{% set active_page = 'sessions' %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header__titles">
+    <h1 class="page-title">Sessions</h1>
+    <p class="page-subtitle">{{ total_count }} sessions in range</p>
+  </div>
+</div>
+
+{# ── Quick filter bar ─────────────────────────────────────────────────────── #}
+<div class="quick-filters">
+  <a href="{{ url_for('sessions', range='today') }}"   {% if active_range=='today'   %}class="is-active"{% endif %}>Today</a>
+  <a href="{{ url_for('sessions', range='week') }}"    {% if active_range=='week'    %}class="is-active"{% endif %}>This week</a>
+  <a href="{{ url_for('sessions', range='month') }}"   {% if active_range=='month'   %}class="is-active"{% endif %}>This month</a>
+  <a href="{{ url_for('sessions', flagged='1') }}"     {% if active_flagged          %}class="is-active"{% endif %}>⚑ Flagged</a>
+</div>
+
+{# ── Custom date filter ───────────────────────────────────────────────────── #}
+<div class="filter-bar mb-2">
+  <form method="get" action="{{ url_for('sessions') }}" class="d-flex gap-2 align-center flex-wrap">
+    <div class="filter-group">
+      <label>From</label>
+      <input type="date" name="from" value="{{ filter_from }}" class="form-control">
+    </div>
+    <div class="filter-group">
+      <label>To</label>
+      <input type="date" name="to" value="{{ filter_to }}" class="form-control">
+    </div>
+    <div style="align-self:flex-end">
+      <button type="submit" class="btn btn--primary btn--sm">Filter</button>
+    </div>
+  </form>
+</div>
+
+{# ── Sessions table ───────────────────────────────────────────────────────── #}
+<table class="table--data">
+  <thead>
+    <tr>
+      <th>Start</th>
+      <th>End</th>
+      <th>Duration</th>
+      <th>Kind</th>
+      <th>In window (min)</th>
+      <th>OT (min)</th>
+      <th>Flag</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for s in sessions %}
+    <tr {% if s.ot_flagged %}class="row--flagged"{% endif %}>
+      <td>{{ s.start_local }}</td>
+      <td>{{ s.end_local or '<em>open</em>'|safe }}</td>
+      <td>{{ s.duration_str }}</td>
+      <td><span class="kind--{{ s.kind }}">{{ s.kind }}</span></td>
+      <td>{{ '%.0f'|format(s.in_window_min) }}</td>
+      <td>{{ '%.0f'|format(s.ot_min) }}</td>
+      <td>{% if s.ot_flagged %}<span class="badge badge--warning">⚑ flagged</span>{% endif %}</td>
+      <td>
+        <div class="action-btns">
+          {% if s.ot_flagged %}
+          <form method="post" action="{{ url_for('session_confirm', id=s.id) }}">
+            <button class="btn btn--sm btn--outline">Confirm</button>
+          </form>
+          {% endif %}
+          <form method="post" action="{{ url_for('session_delete', id=s.id) }}"
+                onsubmit="return confirm('Delete this session?')">
+            <button class="btn btn--sm btn--danger">Delete</button>
+          </form>
+        </div>
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="8" class="text-muted" style="text-align:center">No sessions in range.</td></tr>
+    {% endfor %}
+  </tbody>
+  {% if sessions %}
+  <tfoot>
+    <tr>
+      <td colspan="2">Totals</td>
+      <td>{{ total_duration_str }}</td>
+      <td></td>
+      <td>{{ '%.0f'|format(total_in_window) }}</td>
+      <td>{{ '%.0f'|format(total_ot) }}</td>
+      <td colspan="2"></td>
+    </tr>
+  </tfoot>
+  {% endif %}
+</table>
+{% endblock %}
