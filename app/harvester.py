@@ -250,6 +250,10 @@ def diagnose(conn) -> None:
                     fields = _xml_data_fields(xml)
                     print(f"     RecordID={rec_no}  EventID={ev_id}  Time={ts}")
                     print(f"     Fields  : {dict(list(fields.items())[:6])}")
+                # Print raw XML of the first event so we can inspect the exact format
+                first_xml = win32evtlog.EvtRender(batch[0], win32evtlog.EvtRenderEventXml)
+                print(f"   Raw XML (first event, first 800 chars):")
+                print(f"   {repr(first_xml[:800])}")
         except Exception as exc:
             print(f"   [ERROR] Cannot read channel: {exc}")
         print()
