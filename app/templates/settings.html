@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+{% block title %}Settings — LaptopHours{% endblock %}
+{% set active_page = 'settings' %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header__titles">
+    <h1 class="page-title">Settings</h1>
+  </div>
+</div>
+
+{# ── Work hours ───────────────────────────────────────────────────────────── #}
+<div class="card settings-section" style="padding:var(--space-5)">
+  <h2 class="accent--none" style="font-size:1.1rem;border:none;margin-bottom:var(--space-4)">Work hours &amp; contract</h2>
+  <form method="post" action="{{ url_for('settings_work') }}">
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Work start</label>
+        <input type="time" name="work_start" class="form-control" value="{{ s.work_start }}">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Work end</label>
+        <input type="time" name="work_end" class="form-control" value="{{ s.work_end }}">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Break (min)</label>
+        <input type="number" name="break_minutes" class="form-control" value="{{ s.break_minutes }}" min="0" max="120">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Contract h/week</label>
+        <input type="number" name="contract_hours_per_week" class="form-control" step="0.5"
+               value="{{ s.contract_hours_per_week }}" min="1" max="80">
+      </div>
+    </div>
+    <div class="mt-2">
+      <button class="btn btn--primary btn--sm">Save</button>
+    </div>
+  </form>
+</div>
+
+{# ── OT flag threshold ────────────────────────────────────────────────────── #}
+<div class="card settings-section" style="padding:var(--space-5)">
+  <h2 class="accent--none" style="font-size:1.1rem;border:none;margin-bottom:var(--space-4)">OT flag threshold</h2>
+  <form method="post" action="{{ url_for('settings_ot_flag') }}">
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Flag OT segments longer than (hours)</label>
+        <input type="number" name="ot_flag_threshold_hours" class="form-control" step="0.5"
+               value="{{ s.ot_flag_threshold_hours }}" min="0.5" max="24">
+        <span class="form-hint">Applies outside 08:30–17:00 and on weekends/holidays</span>
+      </div>
+    </div>
+    <div class="mt-2">
+      <button class="btn btn--primary btn--sm">Save</button>
+    </div>
+  </form>
+</div>
+
+{# ── Vacation categories ──────────────────────────────────────────────────── #}
+<div class="card settings-section" style="padding:var(--space-5)">
+  <h2 class="accent--none" style="font-size:1.1rem;border:none;margin-bottom:var(--space-4)">Vacation categories</h2>
+  <table class="table--data" style="margin-top:0">
+    <thead>
+      <tr><th>Name</th><th>Active</th><th></th></tr>
+    </thead>
+    <tbody>
+      {% for cat in vacation_cats %}
+      <tr>
+        <form method="post" action="{{ url_for('settings_vacation_categories') }}">
+          <input type="hidden" name="action" value="rename">
+          <input type="hidden" name="id" value="{{ cat.id }}">
+          <td><input type="text" name="name" value="{{ cat.name }}" class="form-control"></td>
+          <td>
+            <select name="active" class="form-control">
+              <option value="1" {% if cat.active %}selected{% endif %}>Yes</option>
+              <option value="0" {% if not cat.active %}selected{% endif %}>No</option>
+            </select>
+          </td>
+          <td><button class="btn btn--sm btn--outline">Save</button></td>
+        </form>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <form method="post" action="{{ url_for('settings_vacation_categories') }}" class="d-flex gap-1 mt-2 align-center">
+    <input type="hidden" name="action" value="add">
+    <input type="text" name="name" placeholder="New category name" class="form-control" required>
+    <button class="btn btn--primary btn--sm">Add</button>
+  </form>
+</div>
+
+{# ── Vacation grants ───────────────────────────────────────────────────────── #}
+<div class="card settings-section" style="padding:var(--space-5)">
+  <h2 class="accent--none" style="font-size:1.1rem;border:none;margin-bottom:var(--space-4)">Vacation grants</h2>
+  <table class="table--data" style="margin-top:0">
+    <thead>
+      <tr><th>Category</th><th>Year</th><th>Hours granted</th><th>Note</th><th></th></tr>
+    </thead>
+    <tbody>
+      {% for g in vacation_grants %}
+      <tr>
+        <form method="post" action="{{ url_for('settings_vacation_grants') }}">
+          <input type="hidden" name="action" value="edit">
+          <input type="hidden" name="id" value="{{ g.id }}">
+          <td>{{ g.cat_name }}</td>
+          <td><input type="number" name="year" value="{{ g.year }}" class="form-control" style="width:80px"></td>
+          <td><input type="number" name="hours_granted" value="{{ g.hours_granted }}" class="form-control" step="0.5" style="width:90px"></td>
+          <td><input type="text" name="note" value="{{ g.note or '' }}" class="form-control"></td>
+          <td><button class="btn btn--sm btn--outline">Save</button></td>
+        </form>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <form method="post" action="{{ url_for('settings_vacation_grants') }}" class="d-flex gap-1 mt-2 align-center flex-wrap">
+    <input type="hidden" name="action" value="add">
+    <select name="category_id" class="form-control" required>
+      {% for cat in vacation_cats %}{% if cat.active %}
+      <option value="{{ cat.id }}">{{ cat.name }}</option>
+      {% endif %}{% endfor %}
+    </select>
+    <input type="number" name="year" value="{{ current_year }}" class="form-control" style="width:80px" required>
+    <input type="number" name="hours_granted" placeholder="Hours" class="form-control" step="0.5" style="width:90px" required>
+    <input type="text" name="note" placeholder="Note" class="form-control">
+    <button class="btn btn--primary btn--sm">Add grant</button>
+  </form>
+</div>
+
+{# ── Holidays ─────────────────────────────────────────────────────────────── #}
+<div class="card settings-section" style="padding:var(--space-5)">
+  <h2 class="accent--none" style="font-size:1.1rem;border:none;margin-bottom:var(--space-4)">Holidays</h2>
+  <form method="post" action="{{ url_for('settings_holidays_reseed') }}" class="d-flex gap-1 align-center mb-2">
+    <input type="number" name="year" value="{{ current_year }}" class="form-control" style="width:90px">
+    <button class="btn btn--primary btn--sm">Re-seed year</button>
+  </form>
+
+  <form method="post" action="{{ url_for('settings_holidays_add') }}" class="d-flex gap-1 align-center flex-wrap mb-2">
+    <input type="date" name="date" class="form-control" required>
+    <input type="text" name="name" placeholder="Holiday name" class="form-control" required>
+    <button class="btn btn--secondary btn--sm">Add manual</button>
+  </form>
+
+  <table class="table--data" style="margin-top:0">
+    <thead>
+      <tr><th>Date</th><th>Name</th><th>Source</th></tr>
+    </thead>
+    <tbody>
+      {% for h in holidays %}
+      <tr>
+        <td>{{ h.date }}</td>
+        <td>{{ h.name }}</td>
+        <td>
+          {% if h.source == 'manual' %}
+            <span class="badge badge--info">manual</span>
+          {% else %}
+            <span class="badge badge--ok">auto</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

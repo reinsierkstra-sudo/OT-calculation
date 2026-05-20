@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% block title %}Aggregates — LaptopHours{% endblock %}
+{% set active_page = 'aggregates' %}
+
+{% block head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header__titles">
+    <h1 class="page-title">Aggregates</h1>
+    <p class="page-subtitle">Daily, weekly and weekday breakdowns</p>
+  </div>
+</div>
+
+{# ── Quick filter ────────────────────────────────────────────────────────── #}
+<div class="quick-filters mb-2">
+  <a href="{{ url_for('aggregates', range='week') }}"  {% if active_range=='week'  %}class="is-active"{% endif %}>This week</a>
+  <a href="{{ url_for('aggregates', range='month') }}" {% if active_range=='month' %}class="is-active"{% endif %}>This month</a>
+  <a href="{{ url_for('aggregates', range='year') }}"  {% if active_range=='year'  %}class="is-active"{% endif %}>This year</a>
+</div>
+
+{# ── Daily chart ──────────────────────────────────────────────────────────── #}
+<h2>Daily logged time vs contract</h2>
+<div class="card" style="padding:var(--space-5)">
+  <div class="chart-wrap">
+    <canvas id="dailyChart"></canvas>
+  </div>
+</div>
+
+{# ── Weekly rollup table ──────────────────────────────────────────────────── #}
+<h2 class="accent--previous mt-3">Weekly rollup</h2>
+<table class="table--data table--aggregates">
+  <thead>
+    <tr>
+      <th>Week</th>
+      <th>Contract (h)</th>
+      <th>Logged (h)</th>
+      <th>OT earned (h)</th>
+      <th>OT taken (h)</th>
+      <th>Vacation (h)</th>
+      <th>Sick (h)</th>
+      <th>Delta (h)</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for w in weekly_rollup %}
+    <tr>
+      <td>W{{ w.week_nr }} {{ w.year }}</td>
+      <td>{{ '%.1f'|format(w.contract_h) }}</td>
+      <td>{{ '%.1f'|format(w.logged_h) }}</td>
+      <td>{{ '%.1f'|format(w.ot_earned_h) }}</td>
+      <td>{{ '%.1f'|format(w.ot_taken_h) }}</td>
+      <td>{{ '%.1f'|format(w.vacation_h) }}</td>
+      <td>{{ '%.1f'|format(w.sick_h) }}</td>
+      <td class="{{ 'delta--pos' if w.delta_h >= 0 else 'delta--neg' }}">{{ '%+.1f'|format(w.delta_h) }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{# ── Weekday averages ──────────────────────────────────────────────────────── #}
+<h2 class="mt-3">Weekday averages</h2>
+<table class="table--data table--aggregates">
+  <thead>
+    <tr>
+      <th>Day</th>
+      <th>Avg logged (h)</th>
+      <th>Contract (h)</th>
+      <th>Delta (h)</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for row in weekday_avgs %}
+    <tr>
+      <td>{{ row.day }}</td>
+      <td>{{ '%.1f'|format(row.avg_h) }}</td>
+      <td>{{ '%.1f'|format(row.contract_h) }}</td>
+      <td class="{{ 'delta--pos' if row.delta_h >= 0 else 'delta--neg' }}">{{ '%+.1f'|format(row.delta_h) }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const labels  = {{ chart_labels | tojson }};
+const credit  = {{ chart_credit | tojson }};
+const contract= {{ chart_contract | tojson }};
+const ot      = {{ chart_ot | tojson }};
+
+new Chart(document.getElementById('dailyChart'), {
+  type: 'bar',
+  data: {
+    labels,
+    datasets: [
+      {
+        label: 'In-window (h)',
+        data: credit,
+        backgroundColor: 'rgba(102,38,120,0.7)',
+        stack: 'logged',
+      },
+      {
+        label: 'OT (h)',
+        data: ot,
+        backgroundColor: 'rgba(228,13,126,0.7)',
+        stack: 'logged',
+      },
+      {
+        label: 'Contract (h)',
+        data: contract,
+        type: 'line',
+        borderColor: '#3875BA',
+        backgroundColor: 'transparent',
+        borderWidth: 2,
+        pointRadius: 0,
+        tension: 0,
+      },
+    ],
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      x: { stacked: true },
+      y: { stacked: true, title: { display: true, text: 'Hours' } },
+    },
+    plugins: { legend: { position: 'bottom' } },
+  },
+});
+</script>
+{% endblock %}

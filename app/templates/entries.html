@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Entries — LaptopHours{% endblock %}
+{% set active_page = 'entries' %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header__titles">
+    <h1 class="page-title">Manual entries</h1>
+    <p class="page-subtitle">Vacation, sick leave, OT taken</p>
+  </div>
+  <div class="d-flex gap-1">
+    <a href="{{ url_for('entry_new', kind='vacation') }}" class="btn btn--primary btn--sm">+ Vacation</a>
+    <a href="{{ url_for('entry_new', kind='sick') }}"     class="btn btn--outline btn--sm">+ Sick</a>
+    <a href="{{ url_for('entry_new', kind='ot_taken') }}" class="btn btn--secondary btn--sm">+ OT taken</a>
+  </div>
+</div>
+
+{# ── Filter bar ───────────────────────────────────────────────────────────── #}
+<div class="filter-bar mb-2">
+  <form method="get" class="d-flex gap-2 align-center flex-wrap">
+    <div class="filter-group">
+      <label>From</label>
+      <input type="date" name="from" value="{{ filter_from }}" class="form-control">
+    </div>
+    <div class="filter-group">
+      <label>To</label>
+      <input type="date" name="to" value="{{ filter_to }}" class="form-control">
+    </div>
+    <div class="filter-group">
+      <label>Kind</label>
+      <select name="kind" class="form-control">
+        <option value="">All</option>
+        <option value="vacation" {% if filter_kind=='vacation' %}selected{% endif %}>Vacation</option>
+        <option value="sick"     {% if filter_kind=='sick'     %}selected{% endif %}>Sick</option>
+        <option value="ot_taken" {% if filter_kind=='ot_taken' %}selected{% endif %}>OT taken</option>
+      </select>
+    </div>
+    <div style="align-self:flex-end">
+      <button type="submit" class="btn btn--primary btn--sm">Filter</button>
+    </div>
+  </form>
+</div>
+
+<table class="table--data">
+  <thead>
+    <tr>
+      <th>Date</th>
+      <th>Kind</th>
+      <th>Start time</th>
+      <th>Hours</th>
+      <th>Category</th>
+      <th>Note</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for e in entries %}
+    <tr>
+      <td>{{ e.date }}</td>
+      <td>
+        {% if e.kind == 'vacation' %}<span class="badge badge--ok">vacation</span>
+        {% elif e.kind == 'sick' %}<span class="badge badge--warning">sick</span>
+        {% else %}<span class="badge badge--info">OT taken</span>{% endif %}
+      </td>
+      <td>{{ e.start_time or '—' }}</td>
+      <td>{{ e.hours }}</td>
+      <td>{{ e.cat_name or '—' }}</td>
+      <td class="text-muted">{{ e.note or '' }}</td>
+      <td>
+        <div class="action-btns">
+          <a href="{{ url_for('entry_edit', id=e.id) }}" class="btn btn--sm btn--outline">Edit</a>
+          <form method="post" action="{{ url_for('entry_delete', id=e.id) }}"
+                onsubmit="return confirm('Delete this entry?')">
+            <button class="btn btn--sm btn--danger">Delete</button>
+          </form>
+        </div>
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="7" class="text-muted" style="text-align:center">No entries.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

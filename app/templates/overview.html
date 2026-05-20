@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% block title %}Overview — LaptopHours{% endblock %}
+{% set active_page = 'overview' %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header__titles">
+    <h1 class="page-title">Overview</h1>
+    <p class="page-subtitle">{{ today.strftime('%A %d %B %Y') }}</p>
+  </div>
+</div>
+
+{# ── KPI stat cards ───────────────────────────────────────────────────────── #}
+<div class="stat-grid">
+
+  <div class="stat-card stat-card--ot">
+    <div class="stat-label">OT Balance</div>
+    <div class="stat-value {{ 'delta--pos' if ot_balance >= 0 else 'delta--neg' }}">
+      {{ '%+.1f'|format(ot_balance) }}h
+    </div>
+  </div>
+
+  <div class="stat-card stat-card--week">
+    <div class="stat-label">This week vs contract</div>
+    <div class="stat-value {{ 'delta--pos' if week_delta >= 0 else 'delta--neg' }}">
+      {{ '%+.1f'|format(week_delta) }}h
+    </div>
+  </div>
+
+  <div class="stat-card stat-card--vac">
+    <div class="stat-label">Today logged</div>
+    <div class="stat-value">{{ '%.1f'|format(today_logged_h) }}h</div>
+  </div>
+
+  {% if flagged_count > 0 %}
+  <div class="stat-card" style="border-top-color: var(--color-warning)">
+    <div class="stat-label">Flagged sessions</div>
+    <div class="stat-value delta--neg">{{ flagged_count }}</div>
+    <a href="{{ url_for('sessions', flagged='1') }}" class="text-muted" style="font-size:var(--font-size-xs)">Review →</a>
+  </div>
+  {% endif %}
+
+</div>
+
+{# ── Vacation balances ────────────────────────────────────────────────────── #}
+{% if vac_balances %}
+<h2 class="accent--none" style="font-size:1.1rem;border:none;margin-bottom:var(--space-4)">Vacation balances {{ current_year }}</h2>
+<div class="stat-grid">
+  {% for cat_id, info in vac_balances.items() %}
+  <div class="stat-card stat-card--vac">
+    <div class="stat-label">{{ info.name }}</div>
+    <div class="stat-value {{ 'delta--neg' if info.remaining < 0 else '' }}">
+      {{ '%.1f'|format(info.remaining) }}h
+    </div>
+    <div class="text-muted" style="font-size:var(--font-size-xs)">
+      {{ '%.1f'|format(info.used) }} / {{ '%.1f'|format(info.granted) }}h used
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+{# ── Open session ─────────────────────────────────────────────────────────── #}
+{% if open_session %}
+<div class="alert alert--info mb-2">
+  <span class="open-session-dot"></span>
+  <span>
+    <strong>Session active</strong> — started
+    {{ open_session.start_local }} ({{ open_session.duration_str }} so far,
+    {{ open_session.kind }})
+  </span>
+</div>
+{% endif %}
+
+{# ── Flagged sessions warning ─────────────────────────────────────────────── #}
+{% if flagged_count > 0 %}
+<div class="alert-banner alert-banner--warning">
+  <strong>{{ flagged_count }} flagged session{{ 's' if flagged_count != 1 }}</strong>
+  exceed the OT flag threshold and need manual review.
+  <a href="{{ url_for('sessions', flagged='1') }}">Review now →</a>
+</div>
+{% endif %}
+
+{# ── Today's sessions table ───────────────────────────────────────────────── #}
+{% if today_sessions %}
+<h2 class="accent--running">Today's sessions</h2>
+<table class="table--data">
+  <thead>
+    <tr>
+      <th>Start</th><th>End</th><th>Duration</th><th>Kind</th><th>In window</th><th>OT</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for s in today_sessions %}
+    <tr {% if s.ot_flagged %}class="row--flagged"{% endif %}>
+      <td>{{ s.start_local }}</td>
+      <td>{{ s.end_local or '—' }}</td>
+      <td>{{ s.duration_str }}</td>
+      <td><span class="kind--{{ s.kind }}">{{ s.kind }}</span></td>
+      <td>{{ '%.0f'|format(s.in_window_min) }} min</td>
+      <td>{{ '%.0f'|format(s.ot_min) }} min</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+{% endblock %}
