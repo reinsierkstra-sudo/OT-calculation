@@ -6,7 +6,7 @@ Run via:  python -m app.harvester
 """
 
 import logging
-import sys
+import re
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -21,31 +21,54 @@ logging.basicConfig(
 )
 log = logging.getLogger(__name__)
 
+# Windows Event XML uses double-quoted attributes, e.g.:
+#   <TimeCreated SystemTime="2024-01-15T08:30:00.123456789Z"/>
+#   <EventRecordID>12345</EventRecordID>
+#   <EventID>10000</EventID>
+_RE_SYSTEM_TIME  = re.compile(r'SystemTime="([^"]+)"')
+_RE_RECORD_ID    = re.compile(r'<EventRecordID>(\d+)</EventRecordID>')
+_RE_EVENT_ID     = re.compile(r'<EventID(?:\s[^>]*)?>(\d+)</EventID>')
+# EventData fields: <Data Name="FieldName">value</Data>
+_RE_DATA_FIELD   = re.compile(r'<Data Name="([^"]+)">(.*?)</Data>', re.DOTALL)
 
-def _parse_ts(ts_str: str) -> str:
-    """Convert a Win32 SYSTEMTIME-style string to ISO 8601 UTC."""
-    # win32evtlog returns datetime objects for TimeCreated
-    if isinstance(ts_str, datetime):
-        dt = ts_str
-        if dt.tzinfo is None:
-            dt = dt.replace(tzinfo=timezone.utc)
-        return dt.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.000Z")
-    return str(ts_str)
+
+def _xml_system_time(xml: str, fallback: str) -> str:
+    """Extract SystemTime and normalise to ISO 8601 UTC string."""
+    m = _RE_SYSTEM_TIME.search(xml)
+    if not m:
+        return fallback
+    raw = m.group(1)
+    # Windows may give nanoseconds: 2024-01-15T08:30:00.123456789Z
+    # Truncate to microseconds so strptime is happy, then re-format.
+    raw = raw.rstrip("Z")
+    if "." in raw:
+        base, frac = raw.split(".", 1)
+        frac = frac[:6]          # microseconds max
+        raw = f"{base}.{frac}"
+        dt = datetime.strptime(raw, "%Y-%m-%dT%H:%M:%S.%f")
+    else:
+        dt = datetime.strptime(raw, "%Y-%m-%dT%H:%M:%S")
+    return dt.replace(tzinfo=timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "Z"
 
 
-def _xml_field(xml: str, field: str) -> str:
-    """Extract a named field value from EventData XML."""
-    import re
-    pattern = rf'<Data Name="{re.escape(field)}">(.*?)</Data>'
-    m = re.search(pattern, xml or "", re.DOTALL)
-    return m.group(1).strip() if m else ""
+def _xml_record_id(xml: str) -> int:
+    m = _RE_RECORD_ID.search(xml)
+    return int(m.group(1)) if m else 0
+
+
+def _xml_event_id(xml: str) -> int:
+    m = _RE_EVENT_ID.search(xml)
+    return int(m.group(1)) if m else 0
+
+
+def _xml_data_fields(xml: str) -> dict:
+    """Return all EventData <Data Name="..."> fields as a dict."""
+    return {m.group(1): m.group(2).strip() for m in _RE_DATA_FIELD.finditer(xml)}
 
 
 def harvest(conn) -> dict:
     try:
         import win32evtlog
-        import win32evtlogutil
-        import pywintypes
     except ImportError:
         print("pywin32 not available — harvester requires Windows.")
         log.warning("pywin32 not available; harvest skipped.")
@@ -53,141 +76,200 @@ def harvest(conn) -> dict:
 
     profile_name = get_setting(conn, "network_profile_name", "nucmed.lan")
     office_ssid  = get_setting(conn, "office_ssid", "NucMed-Corp")
-    stitch_gap   = int(get_setting(conn, "stitch_gap_seconds", "180"))
 
     now_utc = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.000Z")
+    counts  = {"vpn_connect": 0, "vpn_disconnect": 0, "office_wlan": 0}
 
-    counts = {"vpn_connect": 0, "vpn_disconnect": 0, "office_wlan": 0}
-
-    # ── Channel A: NetworkProfile ──────────────────────────────────────────
+    # ── Channel A: NetworkProfile/Operational ─────────────────────────────
     channel_a = "Microsoft-Windows-NetworkProfile/Operational"
     wm_a = conn.execute(
         "SELECT last_record_no FROM harvester_watermark WHERE channel=?",
         (channel_a,)
     ).fetchone()
-    start_record_a = (wm_a["last_record_no"] + 1) if wm_a else 0
-    max_record_a = start_record_a - 1
+    start_a   = (wm_a["last_record_no"] + 1) if wm_a else 0
+    max_rec_a = start_a - 1
 
     try:
-        query_a = (
-            f"*[System[(EventID=10000 or EventID=10001)] "
-            f"and System[EventRecordID >= {start_record_a}]]"
+        xpath_a = (
+            f"*[System[(EventID=10000 or EventID=10001)]"
+            f" and System[EventRecordID >= {start_a}]]"
         )
         handle_a = win32evtlog.EvtQuery(
-            channel_a, win32evtlog.EvtQueryForwardDirection, query_a
+            channel_a, win32evtlog.EvtQueryForwardDirection, xpath_a
         )
         while True:
-            events = win32evtlog.EvtNext(handle_a, 50)
-            if not events:
+            batch = win32evtlog.EvtNext(handle_a, 50)
+            if not batch:
                 break
-            for evt in events:
+            for evt in batch:
                 try:
-                    xml = win32evtlog.EvtRender(evt, win32evtlog.EvtRenderEventXml)
-                    record_no = int(_xml_field(xml, "EventRecordID") or "0")
-                    # Fallback: parse record number from XML attributes
-                    import re
-                    if not record_no:
-                        m = re.search(r'EventRecordID>(\d+)<', xml)
-                        record_no = int(m.group(1)) if m else 0
+                    xml       = win32evtlog.EvtRender(evt, win32evtlog.EvtRenderEventXml)
+                    rec_no    = _xml_record_id(xml)
+                    event_id  = _xml_event_id(xml)
+                    fields    = _xml_data_fields(xml)
+                    ts_utc    = _xml_system_time(xml, now_utc)
 
-                    name = _xml_field(xml, "Name")
+                    # Confirm this is our target network profile
+                    name = fields.get("Name", "")
                     if name.lower() != profile_name.lower():
                         continue
-
-                    # EventID from XML
-                    m_id = re.search(r'<EventID>(\d+)</EventID>', xml)
-                    event_id = int(m_id.group(1)) if m_id else 0
-
-                    m_ts = re.search(r"SystemTime='([^']+)'", xml)
-                    ts_utc = m_ts.group(1).replace("T", "T").rstrip("Z") + "Z" if m_ts else now_utc
 
                     kind = "vpn_connect" if event_id == 10000 else "vpn_disconnect"
 
                     conn.execute(
                         "INSERT OR IGNORE INTO raw_events"
                         "(ts_utc, channel, event_id, kind, record_number, raw_xml)"
-                        "VALUES (?,?,?,?,?,?)",
-                        (ts_utc, channel_a, event_id, kind, record_no, xml)
+                        " VALUES (?,?,?,?,?,?)",
+                        (ts_utc, channel_a, event_id, kind, rec_no, xml)
                     )
                     counts[kind] += 1
-                    if record_no > max_record_a:
-                        max_record_a = record_no
-                except Exception as e:
-                    log.error("channel_a event error: %s", e)
-    except Exception as e:
-        log.error("channel_a query error: %s", e)
+                    if rec_no > max_rec_a:
+                        max_rec_a = rec_no
 
-    if max_record_a >= start_record_a:
+                except Exception as exc:
+                    log.error("channel_a event parse error: %s", exc)
+
+    except Exception as exc:
+        log.error("channel_a query failed: %s", exc)
+
+    if max_rec_a >= start_a:
         conn.execute(
             "INSERT OR REPLACE INTO harvester_watermark(channel, last_record_no, last_run_utc)"
-            "VALUES (?,?,?)",
-            (channel_a, max_record_a, now_utc)
+            " VALUES (?,?,?)",
+            (channel_a, max_rec_a, now_utc)
         )
 
-    # ── Channel B: WLAN-AutoConfig ─────────────────────────────────────────
+    # ── Channel B: WLAN-AutoConfig/Operational ────────────────────────────
     channel_b = "Microsoft-Windows-WLAN-AutoConfig/Operational"
     wm_b = conn.execute(
         "SELECT last_record_no FROM harvester_watermark WHERE channel=?",
         (channel_b,)
     ).fetchone()
-    start_record_b = (wm_b["last_record_no"] + 1) if wm_b else 0
-    max_record_b = start_record_b - 1
+    start_b   = (wm_b["last_record_no"] + 1) if wm_b else 0
+    max_rec_b = start_b - 1
 
     try:
-        query_b = (
+        xpath_b = (
             f"*[System[EventID=8002]"
-            f" and System[EventRecordID >= {start_record_b}]]"
+            f" and System[EventRecordID >= {start_b}]]"
         )
         handle_b = win32evtlog.EvtQuery(
-            channel_b, win32evtlog.EvtQueryForwardDirection, query_b
+            channel_b, win32evtlog.EvtQueryForwardDirection, xpath_b
         )
         while True:
-            events = win32evtlog.EvtNext(handle_b, 50)
-            if not events:
+            batch = win32evtlog.EvtNext(handle_b, 50)
+            if not batch:
                 break
-            for evt in events:
+            for evt in batch:
                 try:
-                    xml = win32evtlog.EvtRender(evt, win32evtlog.EvtRenderEventXml)
-                    import re
-                    ssid = _xml_field(xml, "SSID") or _xml_field(xml, "ProfileName")
+                    xml      = win32evtlog.EvtRender(evt, win32evtlog.EvtRenderEventXml)
+                    rec_no   = _xml_record_id(xml)
+                    fields   = _xml_data_fields(xml)
+                    ts_utc   = _xml_system_time(xml, now_utc)
+
+                    # WLAN-AutoConfig event 8002 carries the SSID in various field names
+                    ssid = (
+                        fields.get("SSID")
+                        or fields.get("ProfileName")
+                        or fields.get("InterfaceDescription")
+                        or ""
+                    )
                     if ssid.lower() != office_ssid.lower():
                         continue
-
-                    m = re.search(r'EventRecordID>(\d+)<', xml)
-                    record_no = int(m.group(1)) if m else 0
-
-                    m_ts = re.search(r"SystemTime='([^']+)'", xml)
-                    ts_utc = m_ts.group(1).rstrip("Z") + "Z" if m_ts else now_utc
 
                     conn.execute(
                         "INSERT OR IGNORE INTO raw_events"
                         "(ts_utc, channel, event_id, kind, record_number, raw_xml)"
-                        "VALUES (?,?,?,?,?,?)",
-                        (ts_utc, channel_b, 8002, "office_wlan", record_no, xml)
+                        " VALUES (?,?,?,?,?,?)",
+                        (ts_utc, channel_b, 8002, "office_wlan", rec_no, xml)
                     )
                     counts["office_wlan"] += 1
-                    if record_no > max_record_b:
-                        max_record_b = record_no
-                except Exception as e:
-                    log.error("channel_b event error: %s", e)
-    except Exception as e:
-        log.error("channel_b query error: %s", e)
+                    if rec_no > max_rec_b:
+                        max_rec_b = rec_no
 
-    if max_record_b >= start_record_b:
+                except Exception as exc:
+                    log.error("channel_b event parse error: %s", exc)
+
+    except Exception as exc:
+        log.error("channel_b query failed: %s", exc)
+
+    if max_rec_b >= start_b:
         conn.execute(
             "INSERT OR REPLACE INTO harvester_watermark(channel, last_record_no, last_run_utc)"
-            "VALUES (?,?,?)",
-            (channel_b, max_record_b, now_utc)
+            " VALUES (?,?,?)",
+            (channel_b, max_rec_b, now_utc)
         )
 
     conn.commit()
     return counts
 
 
+def diagnose(conn) -> None:
+    """Print a diagnostic report to stdout — useful when no data appears."""
+    try:
+        import win32evtlog
+    except ImportError:
+        print("[ERROR] pywin32 not installed. Run: pip install pywin32")
+        return
+
+    profile_name = get_setting(conn, "network_profile_name", "nucmed.lan")
+    office_ssid  = get_setting(conn, "office_ssid", "NucMed-Corp")
+
+    print(f"Looking for network profile : '{profile_name}'")
+    print(f"Looking for office SSID     : '{office_ssid}'")
+    print()
+
+    for channel, xpath, label in [
+        (
+            "Microsoft-Windows-NetworkProfile/Operational",
+            "*[System[(EventID=10000 or EventID=10001)]]",
+            "NetworkProfile (connect/disconnect)",
+        ),
+        (
+            "Microsoft-Windows-WLAN-AutoConfig/Operational",
+            "*[System[EventID=8002]]",
+            "WLAN-AutoConfig (office WiFi)",
+        ),
+    ]:
+        print(f"── {label}")
+        print(f"   Channel : {channel}")
+        try:
+            handle = win32evtlog.EvtQuery(
+                channel, win32evtlog.EvtQueryReverseDirection, xpath
+            )
+            batch = win32evtlog.EvtNext(handle, 5)
+            if not batch:
+                print("   Result  : NO events found in this channel")
+            else:
+                print(f"   Result  : {len(batch)} most-recent event(s) found")
+                for evt in batch[:3]:
+                    xml    = win32evtlog.EvtRender(evt, win32evtlog.EvtRenderEventXml)
+                    rec_no = _xml_record_id(xml)
+                    ev_id  = _xml_event_id(xml)
+                    ts     = _xml_system_time(xml, "?")
+                    fields = _xml_data_fields(xml)
+                    print(f"     RecordID={rec_no}  EventID={ev_id}  Time={ts}")
+                    print(f"     Fields  : {dict(list(fields.items())[:6])}")
+                # Print raw XML of the first event so we can inspect the exact format
+                first_xml = win32evtlog.EvtRender(batch[0], win32evtlog.EvtRenderEventXml)
+                print(f"   Raw XML (first event, first 800 chars):")
+                print(f"   {repr(first_xml[:800])}")
+        except Exception as exc:
+            print(f"   [ERROR] Cannot read channel: {exc}")
+        print()
+
+
 def main() -> None:
     from .db import init_db
     init_db()
     conn = get_connection()
+
+    import sys
+    if "--diagnose" in sys.argv:
+        diagnose(conn)
+        conn.close()
+        return
+
     counts = harvest(conn)
     conn.close()
 
@@ -199,11 +281,11 @@ def main() -> None:
         f"{counts['office_wlan']} office_wlan)."
     )
 
-    # Trigger sessionizer after harvest
     from .sessionizer import sessionize
     conn = get_connection()
-    sessionize(conn)
+    n = sessionize(conn)
     conn.close()
+    print(f"Sessionizer: {n} sessions rebuilt.")
 
 
 if __name__ == "__main__":
